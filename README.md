@@ -1,1 +1,1 @@
-gamer-trello.io
+git@github.com:Andy-K-Taua/Gamer-Trello.git
