@@ -1,0 +1,65 @@
+Gamer-Trello
+├── backend
+│   ├── controllers
+│   │   ├── auth.controller.js
+│   │   ├── games.controller.js
+│   │   └── subscription.controller.js
+│   ├── lib
+│   │   ├── db.js
+│   │   └── utils.js
+│   ├── middleware
+│   │   ├── auth.middleware.js
+│   │   └── subscription.middleware.js
+│   ├── models
+│   │   ├── payment.model.js
+│   │   ├── subscription.model.js
+│   │   └── user.model.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── routes
+│   │   ├── auth.route.js
+│   │   ├── games.route.js
+│   │   └── subscription.route.js
+│   └── src
+│       └── index.js
+├── frontend
+│   ├── dist
+│   │   ├── assets
+│   │   │   ├── index-BMUjQtRb.css
+│   │   │   └── index-D6GBpnwX.js
+│   │   ├── games
+│   │   │   └── Streets\ of\ Rage\ 2\ (USA).md
+│   │   ├── index.html
+│   │   └── vite.svg
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   ├── games
+│   │   │   └── Streets\ of\ Rage\ 2\ (USA).md
+│   │   └── vite.svg
+│   ├── src
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   │   └── react.svg
+│   │   ├── components
+│   │   │   ├── AuthCheck.jsx
+│   │   │   ├── ProtectedRoutes.jsx
+│   │   │   └── RetroArchEmulator.jsx
+│   │   ├── index.css
+│   │   ├── lib
+│   │   │   └── axios.js
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── GamePadPage.jsx
+│   │   │   ├── GamesListPage.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── SignUpPage.jsx
+│   │   │   └── SubscriptionPage.jsx
+│   │   └── store
+│   │       └── useAuthStore.js
+│   └── vite.config.js
+└── project_structure.txt
+
+19 directories, 43 files
