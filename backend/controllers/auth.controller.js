@@ -23,6 +23,7 @@ export const signup = async (req, res) => {
             }
             generateToken(user._id, res)
             return res.status(200).json({
+                message: "Welcome back!",
                 _id: user._id,
                 email: user.email,
                 isExistingUser: true

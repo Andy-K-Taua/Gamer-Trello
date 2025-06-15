@@ -23,25 +23,23 @@ Gamer-Trello
 │   └── src
 │       └── index.js
 ├── frontend
-│   ├── dist
-│   │   ├── assets
-│   │   │   ├── index-BMUjQtRb.css
-│   │   │   └── index-D6GBpnwX.js
-│   │   ├── games
-│   │   │   └── Streets\ of\ Rage\ 2\ (USA).md
-│   │   ├── index.html
-│   │   └── vite.svg
 │   ├── eslint.config.js
 │   ├── index.html
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── public
 │   │   ├── games
-│   │   │   └── Streets\ of\ Rage\ 2\ (USA).md
+│   │   │   ├── Sonic\ The\ Hedgehog\ 2.md
+│   │   │   ├── Street\ Fighter\ II.md
+│   │   │   └── Streets\ of\ Rage\ 2.md
 │   │   └── vite.svg
 │   ├── src
 │   │   ├── App.jsx
 │   │   ├── assets
+│   │   │   ├── images
+│   │   │   │   ├── Sonic\ The\ Hedgehog\ 2.png
+│   │   │   │   ├── Street\ Fighter\ 2.png
+│   │   │   │   └── Streets\ of\ Rage\ 2.png
 │   │   │   └── react.svg
 │   │   ├── components
 │   │   │   ├── AuthCheck.jsx
@@ -62,4 +60,4 @@ Gamer-Trello
 │   └── vite.config.js
 └── project_structure.txt
 
-19 directories, 43 files
+17 directories, 43 files

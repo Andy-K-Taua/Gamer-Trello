@@ -14,12 +14,16 @@ const GamesListPage = () => {
     const fetchGames = async () => {
       console.log('Fetching games...');
       try {
-        const response = await axios.get('/api/games'); 
+        const response = await axios.get('/api/games');
         console.log('Response:', response.data);
-        const gamesList = response.data.map((game) => ({
-          id: game.id,
-          name: game.name,
-        }));
+        const gamesList = response.data.map((game) => {
+          console.log(`/src/assets/images/${game.name}.png`);
+          return {
+            id: game.id,
+            name: game.name,
+            image: `/src/assets/images/${game.name}.png`         
+          }
+        });
         console.log(gamesList);
         setGames(gamesList);
       } catch (error) {
@@ -43,7 +47,7 @@ const GamesListPage = () => {
       <div className="flex justify-center mb-4 mx-auto max-w-2xl w-full rounded-lg">
         <input
           type="text"
-          placeholder="Search games..."
+          placeholder="Type Game Title Here..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="input input-bordered w-full mb-4 rounded-[20px]"
