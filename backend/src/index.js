@@ -26,14 +26,14 @@ app.use(express.json());
 app.use(express.static(frontendBuildPath));
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-    console.log(`Received request: ${req.method} ${req.url}`);
-    console.log('Request headers:', req.headers);
-    res.on('finish', () => {
-      console.log('Response headers:', res.getHeaders());
-    });
-    next();
-  });
+// app.use((req, res, next) => {
+//     console.log(`Received request: ${req.method} ${req.url}`);
+//     console.log('Request headers:', req.headers);
+//     res.on('finish', () => {
+//       console.log('Response headers:', res.getHeaders());
+//     });
+//     next();
+//   });
 
 console.log('Using dynamic CORS origin');
 app.use(cors({
