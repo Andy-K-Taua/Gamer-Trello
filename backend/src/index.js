@@ -32,7 +32,7 @@ app.use(cookieParser());
 //     res.on('finish', () => {
 //       console.log('Response headers:', res.getHeaders());
 //     });
-//     next();
+//     next();Soni
 //   });
 
 console.log('Using dynamic CORS origin');
