@@ -1,0 +1,23 @@
+Workflow Overview
+
+Login/Register:
+User enters email and password to create an account.
+Authentication is handled via JSON Web Tokens (JWT)
+
+Subscription Selection:
+User selects a subscription plan (e.g., monthly, yearly) with different options (e.g., basic, premium)
+Subscription options are displayed with features and pricing
+
+Payment Gateway:
+User enters payment information (e.g., credit card, PayPal) to complete subscription purchase
+Payment gateway integrates with backend API to handle transactions
+
+Game Library:
+User views a scrollable list of available games
+Games are displayed with metadata (e.g., title, description, genre)
+User can select a game to play
+
+Game Console:
+User is redirected to a fixed console interface
+Selected game is rendered in the console
+User can play the game within the console

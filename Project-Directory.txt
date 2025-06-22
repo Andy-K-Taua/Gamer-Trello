@@ -1,0 +1,61 @@
+GameHub/
+├── frontend/
+│   ├── public/
+│   │   ├── favicon.ico
+│   │   ├── index.html
+│   │   ├── manifest.json
+│   │   └── robots.txt
+│   ├── src/
+│   │   ├── assets/
+│   │   │   ├── images/
+│   │   │   └── styles/
+│   │   │   └── tailwind.config.js
+│   │   ├── components/
+│   │   │   ├── GameCard.js
+│   │   │   ├── Navbar.js
+│   │   │   └── ...
+│   │   ├── hooks/
+│   │   │   └── auth.js
+│   │   ├── pages/
+│   │   │   ├── GameConsole.js
+│   │   │   ├── GameLibrary.js
+│   │   │   ├── Login.js
+│   │   │   ├── Payment.js
+│   │   │   └── Subscription.js
+│   │   ├── routes/
+│   │   │   └── PrivateRoute.js
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── utils/
+│   │   │   └── auth.js
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   └── registerServiceWorker.js
+│   └── package.json
+├── backend/
+│   ├── controllers/
+│   │   ├── auth.js
+│   │   ├── games.js
+│   │   └── subscriptions.js
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   ├── error.js
+│   │   └── rateLimiter.js
+│   ├── models/
+│   │   ├── Game.js
+│   │   ├── Subscription.js
+│   │   └── User.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── games.js
+│   │   └── subscriptions.js
+│   ├── services/
+│   │   └── payment.js
+│   ├── utils/
+│   │   └── jwt.js
+│   ├── app.js
+│   ├── server.js
+│   └── package.json
+├── .gitignore
+├── README.md
+└── package.json

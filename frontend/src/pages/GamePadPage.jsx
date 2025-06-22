@@ -113,7 +113,12 @@ const Gamepad = () => {
   return (
     <div className="w-full h-screen mx-auto flex justify-center items-center"> {/*Put this into here to check if it is rendering: bg-red-300*/}
       <div className="flex justify-between items-center w-11/12 h-80 bg-black p-4 rounded-[40px] shadow-md">
+
+
+
         {/* Left div: Arrows */}
+
+        
         {/* <div className="flex flex-col items-center justify-center w-1/6 mr-4">
           <div className="flex justify-center mb-4 mt-8">
             <div className="w-12 h-12 bg-gray-600 rounded-lg text-white flex justify-center items-center" onTouchStart={() => handleMouseDown(38, 'ArrowUp', 'ArrowUp')}
@@ -139,12 +144,17 @@ const Gamepad = () => {
           </div>
         </div> */}
 
+
         {/* Middle div: EmulatorJS */}
+
+
         <div className="w-full h-full bg-gray-800 flex justify-center items-center border border-gray-700 rounded-['40px'] mx-2">
           <RetroArchEmulator ref={retroArchRef} game={gameName} startOnLoad={true}/>
         </div>
 
         {/* Right div: Buttons */}
+
+
         {/* <div className="flex flex-col items-center justify-center w-1/6 ml-2">
           <div className="flex justify-end">
             <button
@@ -160,6 +170,9 @@ const Gamepad = () => {
             </button>
           </div>
         </div> */}
+
+
+
       </div>
     </div>
   );

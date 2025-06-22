@@ -1,0 +1,14 @@
+GameHub Tech Stack:
+
+Frontend: React (with JSX), React Router, Tailwind CSS, DaisyUI components (Progressive Web App)
+Backend: Node.js, Express.js, RESTful API
+Database: MongoDB
+Authentication: JSON Web Tokens (JWT) via auth.js middleware
+
+Key Technical Implementations:
+
+Client-side routing with React Router
+JWT-based authentication with protected routes
+RESTful API for data management and authentication
+MongoDB for storing user data, game metadata, and subscription information.
+Payment gateway - Paypal
