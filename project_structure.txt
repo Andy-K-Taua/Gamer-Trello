@@ -28,17 +28,18 @@ Gamer-Trello
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── public
-│   │   ├── games
-│   │   │   ├── Sonic\ The\ Hedgehog\ 2.md
-│   │   │   ├── Street\ Fighter\ II.md
-│   │   │   └── Streets\ of\ Rage\ 2.md
-│   │   └── vite.svg
+│   │   └── games
+│   │       ├── Sonic\ The\ Hedgehog\ 2.md
+│   │       ├── Sonic\ The\ Hedgehog\ 3.md
+│   │       ├── Street\ Fighter\ II.md
+│   │       └── Streets\ of\ Rage\ 2.md
 │   ├── src
 │   │   ├── App.jsx
 │   │   ├── assets
 │   │   │   ├── images
 │   │   │   │   ├── Sonic\ The\ Hedgehog\ 2.png
-│   │   │   │   ├── Street\ Fighter\ 2.png
+│   │   │   │   ├── Sonic\ The\ Hedgehog\ 3.png
+│   │   │   │   ├── Street\ Fighter\ II.png
 │   │   │   │   └── Streets\ of\ Rage\ 2.png
 │   │   │   └── react.svg
 │   │   ├── components
@@ -60,4 +61,4 @@ Gamer-Trello
 │   └── vite.config.js
 └── project_structure.txt
 
-17 directories, 43 files
+17 directories, 44 files

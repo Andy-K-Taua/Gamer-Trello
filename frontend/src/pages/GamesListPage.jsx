@@ -17,11 +17,11 @@ const GamesListPage = () => {
         const response = await axios.get('/api/games');
         console.log('Response:', response.data);
         const gamesList = response.data.map((game) => {
-          console.log(`/src/assets/images/${game.name}.png`);
+          console.log(`/images/${game.name}.png`);
           return {
             id: game.id,
             name: game.name,
-            image: `/src/assets/images/${game.name}.png`         
+            image: `/images/${game.name}.png`         
           }
         });
         console.log(gamesList);
