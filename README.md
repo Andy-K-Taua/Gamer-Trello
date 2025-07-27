@@ -4,5 +4,5 @@ Changelog:
 
 1. Be able to go back from create/login page
 2. Be able to go back one page after exiting the emulator using JWT
-3. Send an email to verify email and then send text to verify phone number
+3. Send an email to verify email and then send text to verify phone number, automatic 2FA
 4. Be able to read both .md as well as .bin files
