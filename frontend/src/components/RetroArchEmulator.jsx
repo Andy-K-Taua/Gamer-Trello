@@ -9,6 +9,9 @@ const RetroArchEmulator = forwardRef((props, ref) => {
   useEffect(() => {
     console.log('useEffect hook executed');
 
+    const useBin = true; // or false
+    const gameExtension = useBin ? 'bin' : 'md';
+
     const loadScript = () => {
       console.log('Loading script...');
       const scriptUrl = '/EmulatorJS-4.2.1/data/loader.js';

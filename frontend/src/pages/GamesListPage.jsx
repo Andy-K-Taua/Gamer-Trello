@@ -56,6 +56,7 @@ const GamesListPage = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
         {filteredGames.map((game) => (
+          
           <div
             key={game.id}
             className="card bg-white shadow-xl cursor-pointer rounded-lg"
