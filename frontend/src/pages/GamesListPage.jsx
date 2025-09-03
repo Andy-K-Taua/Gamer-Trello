@@ -55,7 +55,7 @@ const GamesListPage = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-        {filteredGames.map((game) => (
+      {filteredGames.filter(game => game.id !== '.DS_Store').map((game) => (
           
           <div
             key={game.id}

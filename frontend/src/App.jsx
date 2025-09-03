@@ -15,7 +15,9 @@ const App = () => {
 
   useEffect(() => {
     const handlePopState = () => {
-      window.history.go(1);
+      if (['/signup', '/subscription'].includes(location.pathname)) {
+        window.history.go(1);
+      }
     };
   
     window.history.pushState(null, null, location.href);

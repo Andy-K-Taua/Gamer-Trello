@@ -20,6 +20,7 @@ const Gamepad = () => {
     };
     clickStartButton();
   }, []);
+  
 
   const simulateKeyPress = (element, keyCode, key, code,) => {
     // console.log('Received keyCode:', keyCode);
