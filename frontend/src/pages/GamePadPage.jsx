@@ -19,7 +19,7 @@ const Gamepad = () => {
       }
     };
     clickStartButton();
-  }, []);
+  }, [gameName]);
   
 
   const simulateKeyPress = (element, keyCode, key, code,) => {
@@ -150,7 +150,7 @@ const Gamepad = () => {
 
 
         <div className="w-full h-full bg-gray-800 flex justify-center items-center border border-gray-700 rounded-['40px'] mx-2">
-          <RetroArchEmulator ref={retroArchRef} game={gameName} startOnLoad={true}/>
+          <RetroArchEmulator key={gameName} ref={retroArchRef} game={gameName} startOnLoad={true}/>
         </div>
 
         {/* Right div: Buttons */}

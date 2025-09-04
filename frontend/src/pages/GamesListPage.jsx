@@ -10,6 +10,7 @@ const GamesListPage = () => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [games, setGames] = useState([]);
+  console.log('LocationUso:',location.pathname);
 
   useEffect(() => {
     const fetchGames = async () => {
