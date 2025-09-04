@@ -10,7 +10,7 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 
 ## Future Improvements
 
-1. Multiplayer using browser or bluetooth conection
+1. Multiplayer using browser or bluetooth connection
 2. Refactor Code 
 3. Add more trouble-shooting logs for developers
 
