@@ -36,8 +36,8 @@ const GamesListPage = () => {
   }, [location.pathname]);
 
   const handleGameClick = (gameName) => {
-    navigate(`/game-pad/${gameName}`);
-  };
+    window.location.href = `/game-pad/${gameName}`;
+  }
 
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(searchQuery.toLowerCase())

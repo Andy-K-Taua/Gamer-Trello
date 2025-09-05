@@ -142,7 +142,7 @@ const Gamepad = () => {
               onTouchEnd={handleMouseUp}>
               ↓
             </div>
-          </div>
+          </div>x
         </div> */}
 
 
@@ -150,7 +150,7 @@ const Gamepad = () => {
 
 
         <div className="w-full h-full bg-gray-800 flex justify-center items-center border border-gray-700 rounded-['40px'] mx-2">
-          <RetroArchEmulator key={gameName} ref={retroArchRef} game={gameName} startOnLoad={true}/>
+          <RetroArchEmulator key={gameName} ref={retroArchRef} game={gameName} />
         </div>
 
         {/* Right div: Buttons */}

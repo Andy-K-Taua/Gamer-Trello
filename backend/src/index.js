@@ -49,9 +49,13 @@ app.use("/api/auth", authRoutes)
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use('/api', gamesRoute);
 
-app.use((req, res) => {
-  res.sendFile(path.join(frontendBuildPath, '/public/EmulatorJS-4.2.1/data/minify/emulator.min.js'));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
+
+// app.use((req, res) => {
+//   res.sendFile(path.join(frontendBuildPath, '/public/EmulatorJS-4.2.1/data/minify/emulator.min.js'));
+// });
 
 console.log('Server is about to start listening...');
 
