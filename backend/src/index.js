@@ -57,7 +57,7 @@ app.use((req, res) => {
 console.log('Server is about to start listening...');
 
 app.get('*', (req, res) => {
-  const markup = ReactDOMServer.renderToString(<App />);
+  const markup = ReactDOMServer.renderToString(App);
   res.send(`
     <!DOCTYPE html>
     <html>
