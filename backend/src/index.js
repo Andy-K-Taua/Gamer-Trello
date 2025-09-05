@@ -60,7 +60,7 @@ app.use(cors({
 //   credentials: true,
 // };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 app.get('/test', (req, res) => {
     res.json({ message: 'Test successful' });
