@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios'; // Assuming you're using Axios for API calls
+import axios from 'axios'; 
 
 const GamesListPage = () => {
   const navigate = useNavigate();
@@ -35,13 +35,13 @@ const GamesListPage = () => {
     fetchGames();
   }, [location.pathname]);
 
-  // const handleGameClick = (gameName) => {
-  //   navigate(`/game-pad/${gameName}`);
-  // };
-
   const handleGameClick = (gameName) => {
-    window.location.href = `/game-pad/${gameName}`;
-  }
+    navigate(`/game-pad/${gameName}`);
+  };
+
+  // const handleGameClick = (gameName) => {
+  //   window.location.href = `/game-pad/${gameName}`;
+  // }
 
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(searchQuery.toLowerCase())

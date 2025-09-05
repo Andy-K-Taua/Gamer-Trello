@@ -56,22 +56,22 @@ app.use((req, res) => {
 
 console.log('Server is about to start listening...');
 
-app.get('*', (req, res) => {
-  const markup = ReactDOMServer.renderToString(App);
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8" />
-        <title>Gamer-Trello</title>
-      </head>
-      <body>
-        <div id="root">${markup}</div>
-        <script src="bundle.js"></script>
-      </body>
-    </html>
-  `);
-});
+// app.get('*', (req, res) => {
+//   const markup = ReactDOMServer.renderToString(App);
+//   res.send(`
+//     <!DOCTYPE html>
+//     <html>
+//       <head>
+//         <meta charset="UTF-8" />
+//         <title>Gamer-Trello</title>
+//       </head>
+//       <body>
+//         <div id="root">${markup}</div>
+//         <script src="bundle.js"></script>
+//       </body>
+//     </html>
+//   `);
+// });
 
 app.listen(PORT, HOST, () => {
     console.log(`server is running on port ${HOST}:${PORT}`);
