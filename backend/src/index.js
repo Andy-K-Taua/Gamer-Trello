@@ -41,7 +41,7 @@ app.use(cors({
     callback(null, req.header('Origin'));
   },
   credentials: true,
-}));
+})); 
 
 app.get('/test', (req, res) => {
     res.json({ message: 'Test successful' });
