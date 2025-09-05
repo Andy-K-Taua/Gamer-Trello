@@ -3,6 +3,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"
+
 import { connectDB } from "../lib/db.js"
 import authRoutes from "../routes/auth.route.js";
 import subscriptionRoutes from "../routes/subscription.route.js";
@@ -11,8 +12,6 @@ import cors from "cors";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import path from 'node:path';
-import App from '../../frontend/src/App';
-import ReactDOMServer from 'react-dom/server';
 
 dotenv.config();
 
@@ -55,23 +54,6 @@ app.use((req, res) => {
 });
 
 console.log('Server is about to start listening...');
-
-// app.get('*', (req, res) => {
-//   const markup = ReactDOMServer.renderToString(App);
-//   res.send(`
-//     <!DOCTYPE html>
-//     <html>
-//       <head>
-//         <meta charset="UTF-8" />
-//         <title>Gamer-Trello</title>
-//       </head>
-//       <body>
-//         <div id="root">${markup}</div>
-//         <script src="bundle.js"></script>
-//       </body>
-//     </html>
-//   `);
-// });
 
 app.listen(PORT, HOST, () => {
     console.log(`server is running on port ${HOST}:${PORT}`);
