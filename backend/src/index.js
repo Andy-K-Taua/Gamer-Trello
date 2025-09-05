@@ -37,8 +37,10 @@ app.use(cookieParser());
 
 console.log('Using dynamic CORS origin');
 app.use(cors({
-      origin: '*',
-      credentials: true,
+  origin: (req, callback) => {
+    callback(null, req.header('Origin'));
+  },
+  credentials: true,
 }));
 
 app.get('/test', (req, res) => {
