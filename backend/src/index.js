@@ -35,13 +35,32 @@ app.use(cookieParser());
 //     next();Soni
 //   });
 
-console.log('Using dynamic CORS origin');
-app.use(cors({
+
+
+// console.log('Using dynamic CORS origin');
+// app.use(cors({
+//       origin: '*',
+//       credentials: true,
+// }));
+
+
+
+const corsOptions = {
   origin: (req, callback) => {
-    callback(null, req.header('Origin'));
+    const allowedOrigins = ['http://example1.com', 'http://example2.com'];
+    const origin = req.header('Origin');
+    if (allowedOrigins.includes(origin)) {
+      callback(null, origin);
+    } else if (!origin) {
+      callback(null, '*'); // Allow any origin without credentials
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
   credentials: true,
-})); 
+};
+
+app.use(cors(corsOptions));
 
 app.get('/test', (req, res) => {
     res.json({ message: 'Test successful' });
