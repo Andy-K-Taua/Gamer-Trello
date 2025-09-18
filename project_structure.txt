@@ -1,0 +1,64 @@
+Gamer-Trello
+├── backend
+│   ├── controllers
+│   │   ├── auth.controller.js
+│   │   ├── games.controller.js
+│   │   └── subscription.controller.js
+│   ├── lib
+│   │   ├── db.js
+│   │   └── utils.js
+│   ├── middleware
+│   │   ├── auth.middleware.js
+│   │   └── subscription.middleware.js
+│   ├── models
+│   │   ├── payment.model.js
+│   │   ├── subscription.model.js
+│   │   └── user.model.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── routes
+│   │   ├── auth.route.js
+│   │   ├── games.route.js
+│   │   └── subscription.route.js
+│   └── src
+│       └── index.js
+├── frontend
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   └── games
+│   │       ├── Sonic\ The\ Hedgehog\ 2.md
+│   │       ├── Sonic\ The\ Hedgehog\ 3.md
+│   │       ├── Street\ Fighter\ II.md
+│   │       └── Streets\ of\ Rage\ 2.md
+│   ├── src
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   │   ├── images
+│   │   │   │   ├── Sonic\ The\ Hedgehog\ 2.png
+│   │   │   │   ├── Sonic\ The\ Hedgehog\ 3.png
+│   │   │   │   ├── Street\ Fighter\ II.png
+│   │   │   │   └── Streets\ of\ Rage\ 2.png
+│   │   │   └── react.svg
+│   │   ├── components
+│   │   │   ├── AuthCheck.jsx
+│   │   │   ├── ProtectedRoutes.jsx
+│   │   │   └── RetroArchEmulator.jsx
+│   │   ├── index.css
+│   │   ├── lib
+│   │   │   └── axios.js
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── GamePadPage.jsx
+│   │   │   ├── GamesListPage.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── SignUpPage.jsx
+│   │   │   └── SubscriptionPage.jsx
+│   │   └── store
+│   │       └── useAuthStore.js
+│   └── vite.config.js
+└── project_structure.txt
+
+17 directories, 44 files
