@@ -31,4 +31,4 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Acknowledgments
 
-* Thanks to any contributor for their help.
+* Thanks to all contributors for their contributions.
