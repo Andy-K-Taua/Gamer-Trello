@@ -19,6 +19,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
 const frontendBuildPath = path.resolve(__dirname, '../../frontend/dist');
+console.log(frontendBuildPath);
+
 const PORT = process.env.PORT || 10000; 
 const HOST = '0.0.0.0'; 
 
@@ -50,7 +52,12 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use('/api', gamesRoute);
 
 app.use((req, res) => {
-  res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  try {
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error serving index.html');
+  }
 });
 
 console.log('Server is about to start listening...');

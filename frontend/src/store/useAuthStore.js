@@ -70,13 +70,13 @@ export const useAuthStore = create((set) => ({
             const res = await axiosInstance.post("/auth/subscribe", data);
             set({ authUser: res.data });
             toast.success("Subscribed successfully");
-
             get().connectSocket();
         } catch (error) {
             handleError(error, 'subscribe');
+        } finally {
             set({ isLoggingIn: false });
         }
-    },
+    },    
 
     logout: async () => {
         try {
