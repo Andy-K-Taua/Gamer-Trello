@@ -30,7 +30,7 @@ const RetroArchEmulator = forwardRef((props, ref) => {
           window.EJS_player = '#game';
           window.EJS_core = 'segaMD';
           window.EJS_gameUrl = `${window.location.origin}/games/${game}.md`;
-          window.EJS_pathtodata = '/EmulatorJS-4.2.1/data/';
+          window.EJS_pathtodata = 'https://cdn.emulatorjs.org/latest/data/';
         };
         script.onerror = () => {
           console.error('Error loading script:', scriptUrl);

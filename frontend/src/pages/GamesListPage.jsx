@@ -35,9 +35,9 @@ const GamesListPage = () => {
     fetchGames();
   }, [location.pathname]);
 
-  const handleGameClick = (gameName) => {
-    navigate(`/game-pad/${gameName}`);
-  };
+  // const handleGameClick = (gameName) => {
+  //   navigate(`/game-pad/${gameName}`);
+  // };
 
 //   const handleGameClick = (gameName) => {
 //   window.location.href = `/game-pad/${gameName}`;
@@ -46,6 +46,10 @@ const GamesListPage = () => {
 // const handleGameClick = (gameName) => {
 //   window.location.href = `${window.location.origin}/game-pad/${gameName}`;
 // };
+
+const handleGameClick = (gameName) => {
+  navigate(`/game-pad/${encodeURIComponent(gameName)}`);
+};
 
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(searchQuery.toLowerCase())
