@@ -51,14 +51,14 @@ app.use("/api/auth", authRoutes)
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use('/api', gamesRoute);
 
-app.use((req, res) => {
-  try {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error serving index.html');
-  }
-});
+// app.use((req, res) => {
+//   try {
+//     res.sendFile(path.join(frontendBuildPath, 'index.html'));
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Error serving index.html');
+//   }
+// });
 
 console.log('Server is about to start listening...');
 
