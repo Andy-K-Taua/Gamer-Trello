@@ -1,4 +1,4 @@
-//frontend/vide.config.js
+//frontend/vite.config.js
 
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'

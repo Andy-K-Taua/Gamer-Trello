@@ -1,4 +1,5 @@
 Gamer-Trello
+├── README.md
 ├── backend
 │   ├── controllers
 │   │   ├── auth.controller.js
@@ -28,19 +29,89 @@ Gamer-Trello
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── public
-│   │   └── games
-│   │       ├── Sonic\ The\ Hedgehog\ 2.md
-│   │       ├── Sonic\ The\ Hedgehog\ 3.md
-│   │       ├── Street\ Fighter\ II.md
-│   │       └── Streets\ of\ Rage\ 2.md
+│   │   ├── EmulatorJS-4.2.1
+│   │   │   ├── CHANGES.md
+│   │   │   ├── CODE_OF_CONDUCT.md
+│   │   │   ├── CONTRIBUTING.md
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── data
+│   │   │   │   ├── compression
+│   │   │   │   │   ├── extract7z.js
+│   │   │   │   │   ├── extractzip.js
+│   │   │   │   │   ├── libunrar.js
+│   │   │   │   │   └── libunrar.wasm
+│   │   │   │   ├── emulator.css
+│   │   │   │   ├── loader.js
+│   │   │   │   ├── localization
+│   │   │   │   │   ├── Translate.html
+│   │   │   │   │   ├── af-FR.json
+│   │   │   │   │   ├── ar-AR.json
+│   │   │   │   │   ├── ben-BEN.json
+│   │   │   │   │   ├── de-GER.json
+│   │   │   │   │   ├── el-GR.json
+│   │   │   │   │   ├── en.json
+│   │   │   │   │   ├── es-ES.json
+│   │   │   │   │   ├── fa-AF.json
+│   │   │   │   │   ├── hi-HI.json
+│   │   │   │   │   ├── it-IT.json
+│   │   │   │   │   ├── ja-JA.json
+│   │   │   │   │   ├── jv-JV.json
+│   │   │   │   │   ├── ko-KO.json
+│   │   │   │   │   ├── pt-BR.json
+│   │   │   │   │   ├── readme.md
+│   │   │   │   │   ├── retroarch.json
+│   │   │   │   │   ├── ru-RU.json
+│   │   │   │   │   ├── tr-TR.json
+│   │   │   │   │   ├── vi-VN.json
+│   │   │   │   │   └── zh-CN.json
+│   │   │   │   ├── minify
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── emulator.min.css
+│   │   │   │   │   ├── emulator.min.js
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   └── package.json
+│   │   │   │   ├── src
+│   │   │   │   │   ├── GameManager.js
+│   │   │   │   │   ├── compression.js
+│   │   │   │   │   ├── emulator.js
+│   │   │   │   │   ├── gamepad.js
+│   │   │   │   │   ├── nipplejs.js
+│   │   │   │   │   ├── shaders.js
+│   │   │   │   │   ├── socket.io.min.js
+│   │   │   │   │   └── storage.js
+│   │   │   │   └── version.json
+│   │   │   ├── docs
+│   │   │   │   ├── Contributors.md
+│   │   │   │   ├── Logo-light.png
+│   │   │   │   ├── Logo.png
+│   │   │   │   ├── Logo.svg
+│   │   │   │   └── favicon.ico
+│   │   │   ├── index.html
+│   │   │   └── package.json
+│   │   ├── games
+│   │   │   ├── Contra\ -\ Hard\ Corps.md
+│   │   │   ├── Moonwalker.md
+│   │   │   ├── Mortal\ Combat\ 5.md
+│   │   │   ├── Sonic\ The\ Hedgehog\ 2.md
+│   │   │   ├── Sonic\ The\ Hedgehog\ 3.md
+│   │   │   ├── Street\ Fighter\ II.md
+│   │   │   ├── Streets\ of\ Rage\ 2.md
+│   │   │   ├── Ultimate\ Mortal\ Kombat\ 3.md
+│   │   │   └── WWF\ Wrestlemania\ Arcade.md
+│   │   └── images
+│   │       ├── Contra\ -\ Hard\ Corps.png
+│   │       ├── Moonwalker.png
+│   │       ├── Mortal\ Combat\ 5.png
+│   │       ├── Sonic\ The\ Hedgehog\ 2.png
+│   │       ├── Sonic\ The\ Hedgehog\ 3.png
+│   │       ├── Street\ Fighter\ II.png
+│   │       ├── Streets\ of\ Rage\ 2.png
+│   │       ├── Ultimate\ Mortal\ Kombat\ 3.png
+│   │       └── WWF\ Wrestlemania\ Arcade.png
 │   ├── src
 │   │   ├── App.jsx
 │   │   ├── assets
-│   │   │   ├── images
-│   │   │   │   ├── Sonic\ The\ Hedgehog\ 2.png
-│   │   │   │   ├── Sonic\ The\ Hedgehog\ 3.png
-│   │   │   │   ├── Street\ Fighter\ II.png
-│   │   │   │   └── Streets\ of\ Rage\ 2.png
 │   │   │   └── react.svg
 │   │   ├── components
 │   │   │   ├── AuthCheck.jsx
@@ -61,4 +132,4 @@ Gamer-Trello
 │   └── vite.config.js
 └── project_structure.txt
 
-17 directories, 44 files
+24 directories, 108 files
