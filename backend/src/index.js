@@ -26,6 +26,7 @@ const HOST = '0.0.0.0';
 
 app.use(express.json());
 app.use(express.static(frontendBuildPath));
+app.use(express.static(path.resolve(__dirname, '../../frontend/public')));
 app.use(cookieParser());
 
 // app.use((req, res, next) => {
