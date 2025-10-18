@@ -19,14 +19,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
 const frontendBuildPath = path.resolve(__dirname, '../../frontend/dist');
-const frontendPublicPath = path.resolve(__dirname, '../../frontend/public');
+console.log('frontendBuildPath:', frontendBuildPath);
 
 const PORT = process.env.PORT || 10000; 
 const HOST = '0.0.0.0'; 
 
 app.use(express.json());
 app.use(express.static(frontendBuildPath));
-app.use(express.static(frontendPublicPath));
 app.use(cookieParser());
 
 // app.use((req, res, next) => {

@@ -9,6 +9,9 @@ export default defineConfig({
     tailwindcss(),
   ],
   envDir: '../backend',
+  build: {
+    outDir: 'dist',
+  },
   // publicDir: 'public',
   server: {
     hmr: true,
