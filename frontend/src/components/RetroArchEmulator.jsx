@@ -41,7 +41,7 @@ const RetroArchEmulator = forwardRef((props, ref) => {
         console.log('Script already loaded, using existing script...');
         // Script already loaded, you can use EJS_Runtime
         window.EJS_player = '#game';
-        window.EJS_core = 'genesis_plus_gx';
+        window.EJS_core = 'segaMD';
         window.EJS_gameUrl = `${window.location.origin}/games/${game}.md`;
         window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
       }
