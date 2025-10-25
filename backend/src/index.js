@@ -3,6 +3,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"
+import fs from 'fs';
 
 import { connectDB } from "../lib/db.js"
 import authRoutes from "../routes/auth.route.js";
@@ -20,6 +21,14 @@ const __dirname = dirname(__filename);
 const app = express();
 const frontendBuildPath = path.resolve(__dirname, '../../frontend/dist');
 console.log('frontendBuildPath:', frontendBuildPath);
+
+fs.readdir(frontendBuildPath, (err, files) => {
+  if (err) {
+    console.error('Error reading dist folder:', err);
+  } else {
+    console.log('Files in dist folder:', files);
+  }
+});
 
 const PORT = process.env.PORT || 10000; 
 const HOST = '0.0.0.0'; 
