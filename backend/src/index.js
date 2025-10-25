@@ -19,7 +19,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
-const frontendBuildPath = path.resolve(__dirname, '../../frontend/dist');
+const frontendBuildPath = path.resolve(__dirname, '../../frontend/public');
 console.log('frontendBuildPath:', frontendBuildPath);
 
 fs.readdir(frontendBuildPath, (err, files) => {
