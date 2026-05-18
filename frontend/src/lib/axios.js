@@ -3,7 +3,10 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  // Dynamically switch URLs: Relative path on Render, absolute path on local dev server
+  baseURL: import.meta.env.MODE === 'production' 
+    ? '/api' 
+    : 'http://localhost:5001/api',
   withCredentials: true,
 });
 
