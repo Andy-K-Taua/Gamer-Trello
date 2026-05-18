@@ -16,3 +16,8 @@ Thumbs.db
 # Build outputs
 dist/
 frontend/dist/
+
+# Python helper scripts
+snapshot.py
+frontend/inspect_frontend.py
+backend/inspect_backend.py
