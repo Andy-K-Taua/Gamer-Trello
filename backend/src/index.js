@@ -69,7 +69,7 @@ app.get('/test', (req, res) => {
 app.use(express.static(frontendBuildPath));
 
 // 5. Catch-all fallback route to serve index.html for Single Page Application (Vite/React) routing
-app.get("/:any*", (req, res) => {
+app.get(/.* /, (req, res) => {
   try {
     res.sendFile(path.join(frontendBuildPath, 'index.html'));
   } catch (error) {
