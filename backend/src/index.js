@@ -19,7 +19,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
-const frontendBuildPath = path.resolve(__dirname, '../../frontend/public');
+const frontendBuildPath = path.resolve(__dirname, '../../frontend/dist');
 console.log('frontendBuildPath:', frontendBuildPath);
 
 fs.readdir(frontendBuildPath, (err, files) => {
@@ -44,13 +44,13 @@ app.use(cookieParser());
 //     res.on('finish', () => {
 //       console.log('Response headers:', res.getHeaders());
 //     });
-//     next();Soni
+//     next();
 //   });
 
 console.log('Using dynamic CORS origin');
 app.use(cors({
-      origin: '*',
-      credentials: true,
+    origin: "http://localhost:5173", // Explicit local development origin
+    credentials: true,
 }));
 
 app.get('/test', (req, res) => {

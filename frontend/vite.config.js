@@ -1,22 +1,27 @@
-//frontend/vite.config.js
-
-import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    react(),
     tailwindcss(),
   ],
+  css: {
+    // This forces Vite v6 to use its fast lightningcss internal pipeline 
+    // and prevents legacy PostCSS loaders from highjacking @import "tailwindcss"
+    transformer: 'lightningcss' 
+  },
   envDir: '../backend',
   build: {
     outDir: 'dist',
+    cssMinify: 'lightningcss'
   },
-  // publicDir: 'public',
   server: {
     hmr: true,
     proxy: {
-      '/api': 'http://localhost:5001', // proxy requests from /api to your backend server
+      '/api': 'http://localhost:5001',
     },
   },
 });
