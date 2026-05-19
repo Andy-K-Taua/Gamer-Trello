@@ -19,7 +19,13 @@ const RetroArchEmulator = forwardRef((props, ref) => {
       // 1. SET THE CONFIGURATION PATHS FIRST BEFORE THE SCRIPT LOADS
       window.EJS_player = '#game';
       window.EJS_core = 'segaMD';
-      window.EJS_gameUrl = `${window.location.origin}/api/games/${game}`;
+
+      // Force the .md extension on the filename if it isn't already included in the game string
+      const romName = game.endsWith('.md') ? game : `${game}.md`;
+      window.EJS_gameUrl = `${window.location.origin}/games/${romName}`;
+
+      // Explicitly set the language to standard 'en' so it stops looking for region-specific files like en-AU.json
+      window.EJS_language = 'en';
 
       // This explicitly forces loader.js to fetch styles/assets from the CDN, not Render
       window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
