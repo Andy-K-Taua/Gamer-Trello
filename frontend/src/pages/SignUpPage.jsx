@@ -122,6 +122,7 @@ const SignUpPage = () => {
                   <input
                     type="email"
                     className="flex-1 border-none outline-none bg-transparent text-neutral"
+                    style={{ color: '#ffffff' }}
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -135,6 +136,7 @@ const SignUpPage = () => {
                   <input
                     type="tel"
                     className="flex-1 border-none outline-none bg-transparent text-neutral"
+                    style={{ color: '#ffffff' }}
                     placeholder="e.g. +61412345678"
                     value={formData.mobile}
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
@@ -148,6 +150,7 @@ const SignUpPage = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     className="flex-1 border-none outline-none bg-transparent text-neutral pr-10"
+                    style={{ color: '#ffffff' }}
                     placeholder="Password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
