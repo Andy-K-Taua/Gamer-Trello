@@ -11,9 +11,13 @@ const router = express.Router();
 // This must be protected so we know exactly which user is choosing the plan
 router.post('/select-plan', protectRoute, subscriptionController.selectPlan);
 
-// Check subscription expiry
-router.get("/check-expiry", protectRoute, checkSubscriptionExpiryStatus);
-
+// Check subscription expiry (Runs the middleware check, then sends a 200 success back to the frontend)
+router.get("/check-expiry", protectRoute, checkSubscriptionExpiryStatus, (req, res) => {
+    res.status(200).json({ 
+        message: "Subscription is active and valid", 
+        status: "active" 
+    });
+});
 // --- Standard Subscription CRUD Routes ---
 // Create a new subscription
 router.post('/', subscriptionController.createSubscription);
