@@ -1,59 +1,78 @@
 // frontend/src/pages/GamesListPage.jsx
 
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios'; 
+import { axiosInstance } from '../lib/axios'; // FIXED: Use your configured instance for auth header/cookie support
+import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const GamesListPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [games, setGames] = useState([]);
-  console.log('Location:',location.pathname);
+  const [isVerifying, setIsVerifying] = useState(true); // Added loading state for the gate check
+
+  console.log('Location:', location.pathname);
 
   useEffect(() => {
-    const fetchGames = async () => {
-      console.log('Fetching games...');
+    const verifyAccessAndFetchGames = async () => {
       try {
-        const response = await axios.get('/api/games');
+        console.log('Verifying subscription access...');
+        // 1. Hit the authorization guard endpoint first
+        await axiosInstance.get('/subscriptions/check-expiry');
+        
+        // 2. If it passes (200 OK), proceed to fetch games
+        console.log('Access granted. Fetching games...');
+        const response = await axiosInstance.get('/games'); // Using base configuration endpoint routing
         console.log('Response:', response.data);
+        
         const gamesList = response.data.map((game) => {
           console.log(`/images/${game.name}.png`);
           return {
             id: game.id,
             name: game.name,
             image: `/images/${game.name}.png`         
-          }
+          };
         });
-        console.log(gamesList);
+        
         setGames(gamesList);
+        setIsVerifying(false); // Drop loading wall
+        
       } catch (error) {
-        console.error(error);
+        console.error("Authorization check failed:", error);
+        
+        // 3. Handle the 401 Unauthorized status cleanly
+        if (error.response && error.response.status === 401) {
+          toast.error("Access Denied: An active subscription or admin approval is required.");
+          navigate('/subscription'); // Hard bounce to pricing tier selection
+        } else {
+          toast.error("An error occurred loading your dashboard.");
+          setIsVerifying(false);
+        }
       }
     };
-    fetchGames();
-  }, [location.pathname]);
 
-  // const handleGameClick = (gameName) => {
-  //   navigate(`/game-pad/${gameName}`);
-  // };
+    verifyAccessAndFetchGames();
+  }, [location.pathname, navigate]);
 
   const handleGameClick = (gameName) => {
-  window.location.href = `/game-pad/${gameName}`;
-}
-
-// const handleGameClick = (gameName) => {
-//   window.location.href = `${window.location.origin}/game-pad/${gameName}`;
-// };
-
-// const handleGameClick = (gameName) => {
-//   navigate(`/game-pad/${encodeURIComponent(gameName)}`);
-// };
+    window.location.href = `/game-pad/${gameName}`;
+  };
 
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Render loading screen while verification is pending to prevent visual leak of games list
+  if (isVerifying) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-base-200">
+        <Loader2 className="size-10 animate-spin text-success mb-2" />
+        <span className="text-lg font-semibold text-base-content/70">Verifying access credentials...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
@@ -68,8 +87,7 @@ const GamesListPage = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-      {filteredGames.filter(game => game.id !== '.DS_Store').map((game) => (
-          
+        {filteredGames.filter(game => game.id !== '.DS_Store').map((game) => (
           <div
             key={game.id}
             className="card bg-white shadow-xl cursor-pointer rounded-lg"
