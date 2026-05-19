@@ -13,34 +13,37 @@ const RetroArchEmulator = forwardRef((props, ref) => {
     const gameExtension = useBin ? 'bin' : 'md';
 
     const loadScript = () => {
-      console.log('Loading script from CDN...');
-      // Point scriptUrl to the CDN instead of your local asset folder
+      console.log('Loading script...');
       const scriptUrl = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-      console.log('Script URL:', scriptUrl);
+
+      // 1. SET THE CONFIGURATION PATHS FIRST BEFORE THE SCRIPT LOADS
+      window.EJS_player = '#game';
+      window.EJS_core = 'segaMD';
+      window.EJS_gameUrl = `${window.location.origin}/api/games/${game}`;
+
+      // This explicitly forces loader.js to fetch styles/assets from the CDN, not Render
+      window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
 
       if (!document.querySelector(`script[src="${scriptUrl}"]`)) {
         console.log('Script not found, creating new script element...');
-
         const script = document.createElement('script');
         script.src = scriptUrl;
+
         script.onload = () => {
           console.log('Script loaded successfully!');
-          window.EJS_player = '#game';
-          window.EJS_core = 'segaMD';
-          window.EJS_gameUrl = `${window.location.origin}/games/${game}.md`;
-          window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
         };
         script.onerror = () => {
           console.error('Error loading script:', scriptUrl);
         };
+
         document.body.appendChild(script);
         console.log('Script element added to body...');
       } else {
-        console.log('Script already loaded, using existing script...');
-        window.EJS_player = '#game';
-        window.EJS_core = 'segaMD';
-        window.EJS_gameUrl = `${window.location.origin}/games/${game}.md`;
-        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+        console.log('Script already loaded.');
+        // If the script is already on the page, kick off the emulator manually if needed
+        if (typeof window.EmitEJS === 'function') {
+          window.EmitEJS();
+        }
       }
     };
 
