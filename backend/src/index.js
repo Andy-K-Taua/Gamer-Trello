@@ -30,8 +30,8 @@ fs.readdir(frontendBuildPath, (err, files) => {
   }
 });
 
-const PORT = process.env.PORT || 10000; 
-const HOST = '0.0.0.0'; 
+const PORT = process.env.PORT || 10000;
+const HOST = '0.0.0.0';
 
 // 1. Global Essential Middleware
 app.use(express.json());
@@ -40,7 +40,7 @@ app.use(cookieParser());
 // 2. Dynamic CORS Configuration
 // In production (Render), since the frontend is served from the backend service, 
 // we allow credentials and fallback gracefully without hardcoding placeholders.
-const allowedOrigins = ["http://localhost:5173"]; 
+const allowedOrigins = ["http://localhost:5173"];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -50,7 +50,7 @@ app.use(cors({
     } else {
       // On Render, same-origin requests won't send an "Origin" header for standard fetches,
       // but if a mismatch happens, this block dynamically allows it.
-      callback(null, true); 
+      callback(null, true);
     }
   },
   credentials: true
@@ -62,14 +62,14 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use('/api', gamesRoute);
 
 app.get('/test', (req, res) => {
-    res.json({ message: 'Test successful' });
+  res.json({ message: 'Test successful' });
 });
 
 // 4. Static Client Assets Middleware
 app.use(express.static(frontendBuildPath));
 
-// 5. Catch-all fallback route to serve index.html for Single Page Application (Vite/React) routing
-app.get(/^(?!\/api).*$/, (req, res) => {
+// 5. Catch-all fallback route (Skips /api and /games to allow static file streaming)
+app.get(/^(?!\/(api|games)).*$/, (req, res) => {
   try {
     res.sendFile(path.join(frontendBuildPath, 'index.html'));
   } catch (error) {
@@ -81,6 +81,6 @@ app.get(/^(?!\/api).*$/, (req, res) => {
 console.log('Server is about to start listening...');
 
 app.listen(PORT, HOST, () => {
-    console.log(`server is running on port ${HOST}:${PORT}`);
-    connectDB();
+  console.log(`server is running on port ${HOST}:${PORT}`);
+  connectDB();
 });
