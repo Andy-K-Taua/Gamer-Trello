@@ -1,8 +1,9 @@
 // frontend/src/pages/SubscriptionPage.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { axiosInstance } from '../lib/axios';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import { Loader2 } from "lucide-react"; // Imported for the animation loading spinner
 
 import {
   CheckCircle,
@@ -20,64 +21,110 @@ const plans = {
 const SubscriptionPage = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
+  
+  // States for handling the animated approval modal and polling loop
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const pollingRef = useRef(null);
 
   useEffect(() => {
     const getUserId = async () => {
       try {
         const response = await axiosInstance.get('/auth/check');
-        console.log('Response:', response);
-        console.log('Response data:', response.data);
         if (response.data && response.data.authUser && response.data.authUser._id) {
-          console.log('Setting user ID:', response.data.authUser._id);
           setUserId(response.data.authUser._id);
-        } else {
-          console.error('User ID not found in response');
+          
+          // Self-recovery: if the page loads but they are already approved, pass them through
+          if (response.data.authUser.approvalStatus === 'approved') {
+            navigate('/games-list');
+          }
         }
       } catch (error) {
         console.error(error);
       }
     };
     getUserId();
-  }, []);
+
+    // Cleanup any running interval if the user leaves the page component
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, [navigate]);
+
+  // Starts pinging the backend to check if the admin has typed their choice into the CLI yet
+  const startApprovalPolling = () => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
+
+    pollingRef.current = setInterval(async () => {
+      try {
+        const res = await axiosInstance.get('/auth/check');
+        
+        if (res.data && res.data.authUser) {
+          const { approvalStatus } = res.data.authUser;
+          console.log("Checking approval status heartbeat...", approvalStatus);
+
+          if (approvalStatus === 'approved') {
+            clearInterval(pollingRef.current);
+            setShowPendingModal(false);
+            navigate('/games-list');
+          }
+        }
+      } catch (err) {
+        console.error("Error polling user verification status:", err);
+      }
+    }, 4000); // Check every 4 seconds
+  };
 
   const handlePlanSelection = async (planId) => {
-    console.log('Plan selected:', planId);
-    console.log('User ID:', userId);
     if (!userId) return;
   
-    let endDate;
-    switch (planId) {
-      case 'free':
-        endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-        break;
-      case 'standard':
-        endDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000); // 60 days (2 months)
-        break;
-      case 'premium':
-        endDate = new Date(Date.now() + 120 * 24 * 60 * 60 * 1000); // 120 days (4 months)
-        break;
-      default:
-        console.error('Invalid plan ID');
-        return;
-    }
-  
     try {
-      const startDate = new Date();
-      const response = await axiosInstance.post('/subscriptions', {
-        userId,
-        planId,
-        startDate,
-        endDate,
+      // 1. Target the new choice endpoint to set status to 'pending'
+      await axiosInstance.post('/subscriptions/select-plan', {
+        plan: planId,
       });
-      console.log('New subscription created:', response.data);
-      navigate('/games-list')
+      
+      // 2. Open up the thank you waiting popup view and kick off the interval engine
+      setShowPendingModal(true);
+      startApprovalPolling();
+
     } catch (error) {
-      console.error(error);
+      console.error("Error processing plan tracking payload:", error);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 relative">
+      
+      {/* --- ANIMATED PENDING APPROVAL MODAL OVERLAY --- */}
+      {showPendingModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-fade-in backdrop-blur-sm">
+          <div className="card w-96 bg-base-100 shadow-2xl p-6 text-center border border-success/20 transform scale-100 transition-transform duration-300">
+            <div className="flex flex-col items-center space-y-4">
+              
+              {/* Spinning DaisyUI Gamepad / Circle Accents */}
+              <div className="relative flex items-center justify-center">
+                <Loader2 className="size-16 text-success animate-spin" />
+                <GamepadIcon className="size-6 text-success absolute" />
+              </div>
+
+              <h2 className="text-2xl font-bold text-base-content">Thank you for waiting!</h2>
+              
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500 font-medium">
+                  Your account registration is currently <span className="text-warning font-semibold animate-pulse">pending approval</span>.
+                </p>
+                <p className="text-xs text-gray-400">
+                  We are processing your selection. This screen will automatically update once confirmed by our administration team.
+                </p>
+              </div>
+
+              {/* Progress visual bar indicator */}
+              <progress className="progress progress-success w-full mt-2" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <section className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Subscription Plans</h1>

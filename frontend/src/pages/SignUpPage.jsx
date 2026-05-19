@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
-import { useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone } from "lucide-react"; // Added Phone icon
+import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
-
-
 import toast from "react-hot-toast";
 
 const TypeText = ({ text, speed = 40 }) => {
@@ -32,17 +30,21 @@ const TypeText = ({ text, speed = 40 }) => {
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  
+  // 1. Updated state schema to trace phone configuration tracking
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
+    mobile: "", 
+  });
 
   const { signup, isSigningUp } = useAuthStore();
 
+  // 2. Updated client-side schema checks for mobile presence validation
   const validateForm = () => {
     if (!formData.email.trim()) return toast.error("Email is required");
     if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
-    if (!formData.password) return toast.error("Password is required");
+    if (!formData.mobile.trim()) return toast.error("Mobile number is required");
     if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
 
     return true;
@@ -50,7 +52,6 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const success = validateForm();
 
     if (success === true) {
@@ -90,8 +91,8 @@ const SignUpPage = () => {
           <div className="card-body">
 
             <form onSubmit={handleSubmit} className='space-y-6'>
-
               <fieldset className="fieldset">
+                
                 <label className="label">Email</label>
                 <div className="flex items-center input rounded-[15px]">
                   <Mail className="size-5 text-base-content/40 mr-2" />
@@ -105,8 +106,22 @@ const SignUpPage = () => {
                   />
                 </div>
 
-                <label className="label">Password</label>
+                {/* 3. New Phone Input Node */}
+                <label className="label">Mobile Number</label>
                 <div className="flex items-center input rounded-[15px]">
+                  <Phone className="size-5 text-base-content/40 mr-2" />
+                  <input
+                    type="tel"
+                    className="flex-1 border-none outline-none bg-transparent"
+                    placeholder="e.g. +61412345678"
+                    value={formData.mobile}
+                    onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                    autoComplete="tel"
+                  />
+                </div>
+
+                <label className="label">Password</label>
+                <div className="flex items-center input rounded-[15px] relative">
                   <Lock className="size-5 text-base-content/40 mr-2" />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -133,7 +148,6 @@ const SignUpPage = () => {
                   type="submit"
                   style={{ marginTop: '20px', borderRadius: '15px' }}
                   disabled={isSigningUp}
-                  onClick={() => console.log('Button clicked!')}
                 >
                   {isSigningUp ? (
                     <>
@@ -153,4 +167,4 @@ const SignUpPage = () => {
   );
 };
 
-export default SignUpPage
+export default SignUpPage;

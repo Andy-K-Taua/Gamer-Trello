@@ -1,6 +1,37 @@
 // backend/controllers/subscription.controller.js
 
 import Subscription from '../models/subscription.model.js';
+import User from '../models/user.model.js'; // Imported User model to manage approval states
+
+// 1. SELECT PLAN & MARK PENDING FOR CLI APPROVAL (New Method)
+const selectPlan = async (req, res) => {
+  try {
+    const { plan } = req.body; // e.g., "Premium", "Basic"
+    
+    if (!plan) {
+      return res.status(400).json({ message: "Plan selection is required" });
+    }
+
+    // Find the logged-in user from the authentication token context
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update their status to pending and save their chosen plan name
+    user.subscriptionPlan = plan;
+    user.approvalStatus = 'pending';
+    await user.save();
+
+    res.status(200).json({ 
+      message: "Plan selected successfully, pending admin approval.", 
+      subscriptionPlan: user.subscriptionPlan,
+      approvalStatus: user.approvalStatus 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Create a new subscription
 const createSubscription = async (req, res) => {
@@ -75,6 +106,7 @@ const checkSubscriptionExpiryStatus = async (req, res) => {
 };
 
 export default {
+  selectPlan, // Exported new method
   createSubscription,
   getAllSubscriptions,
   getSubscriptionById,
