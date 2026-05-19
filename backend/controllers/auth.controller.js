@@ -1,9 +1,12 @@
+// backend/controllers/auth.controller.js
+import User from "../models/user.model.js";
+import bcrypt from "bcryptjs";
+import { generateToken } from "../lib/utils.js"; // Adjust helper path if different
+
 export const signup = async (req, res) => {
-    // 1. Destructure mobile from the request body
     const { email, password, mobile } = req.body;
     
     try {
-        // 2. Validate that all required fields are present
         if (!email || !password || !mobile) {
             return res.status(400).json({ message: "All fields are required" });
         }
@@ -11,26 +14,23 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "Password must be at least 6 characters" });
         }
 
-        // 3. Check if a user already exists with this email
         const existingEmail = await User.findOne({ email });
         if (existingEmail) {
             return res.status(400).json({ message: "Email is already registered" });
         }
 
-        // 4. Check if a user already exists with this mobile number
         const existingMobile = await User.findOne({ mobile });
         if (existingMobile) {
             return res.status(400).json({ message: "Mobile number is already registered" });
         }
 
-        // 5. Hash password and save new record
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = new User({
             email,
             password: hashedPassword,
-            mobile // <-- Saves the mobile number to the database
+            mobile
         });
 
         await newUser.save();
@@ -40,10 +40,35 @@ export const signup = async (req, res) => {
             _id: newUser._id,
             email: newUser.email,
             mobile: newUser.mobile,
-            isVerified: newUser.isVerified
+            approvalStatus: newUser.approvalStatus
         });
     } catch (error) {
         console.log("Error in signup controller:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const logout = async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.log("Error in logout controller", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const subscribe = async (req, res) => {
+    // Your existing subscribe logic here
+};
+
+// This is the crucial check auth controller your router needs!
+export const checkAuth = async (req, res) => {
+    try {
+        // req.user is set by your protectRoute middleware
+        res.status(200).json({ authUser: req.user });
+    } catch (error) {
+        console.log("Error in checkAuth controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
