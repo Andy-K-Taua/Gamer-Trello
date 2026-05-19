@@ -1,14 +1,13 @@
 // frontend/src/pages/GamesListPage.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const GamesListPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [games, setGames] = useState([]);
   const [isVerifying, setIsVerifying] = useState(true);
@@ -53,7 +52,8 @@ const GamesListPage = () => {
     };
 
     verifyAccessAndFetchGames();
-  }, [location.pathname, navigate]);
+    // REMOVED location.pathname from here to break the route-change loop trigger
+  }, [navigate]);
 
   const handleGameClick = (gameName) => {
     window.location.href = `/game-pad/${gameName}`;
