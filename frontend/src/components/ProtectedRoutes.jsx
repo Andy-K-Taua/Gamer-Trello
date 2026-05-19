@@ -1,12 +1,16 @@
 // frontend/src/components/ProtectRoutes.jsx
+
 import React from 'react';
 import AuthCheck from './AuthCheck';
 import { Routes, Route } from "react-router-dom";
 import SubscriptionPage from '../pages/SubscriptionPage';
 import GamesListPage from '../pages/GamesListPage';
 import GamePadPage from '../pages/GamePadPage';
+import { useLocation } from 'react-router-dom';
 
 const ProtectedRoutes = () => {
+    const location = useLocation();
+    console.log('Current URL:', location.pathname);
     return (
         <AuthCheck>
             <Routes>
