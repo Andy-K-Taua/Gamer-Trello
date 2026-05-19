@@ -13,12 +13,11 @@ const RetroArchEmulator = forwardRef((props, ref) => {
     const gameExtension = useBin ? 'bin' : 'md';
 
     const loadScript = () => {
-      console.log('Loading script...');
-      const scriptUrl = '/EmulatorJS-4.2.1/data/loader.js';
+      console.log('Loading script from CDN...');
+      // Point scriptUrl to the CDN instead of your local asset folder
+      const scriptUrl = 'https://cdn.emulatorjs.org/stable/data/loader.js';
       console.log('Script URL:', scriptUrl);
 
-      
-      
       if (!document.querySelector(`script[src="${scriptUrl}"]`)) {
         console.log('Script not found, creating new script element...');
 
@@ -26,11 +25,10 @@ const RetroArchEmulator = forwardRef((props, ref) => {
         script.src = scriptUrl;
         script.onload = () => {
           console.log('Script loaded successfully!');
-          // Script loaded, now you can use EJS_Runtime
           window.EJS_player = '#game';
           window.EJS_core = 'segaMD';
           window.EJS_gameUrl = `${window.location.origin}/games/${game}.md`;
-          window.EJS_pathtodata = 'https://cdn.emulatorjs.org/latest/data/';
+          window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
         };
         script.onerror = () => {
           console.error('Error loading script:', scriptUrl);
@@ -39,7 +37,6 @@ const RetroArchEmulator = forwardRef((props, ref) => {
         console.log('Script element added to body...');
       } else {
         console.log('Script already loaded, using existing script...');
-        // Script already loaded, you can use EJS_Runtime
         window.EJS_player = '#game';
         window.EJS_core = 'segaMD';
         window.EJS_gameUrl = `${window.location.origin}/games/${game}.md`;
