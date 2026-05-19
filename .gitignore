@@ -21,3 +21,7 @@ frontend/dist/
 snapshot.py
 frontend/inspect_frontend.py
 backend/inspect_backend.py
+
+# Javascript helper scripts
+backend/approveUsers.js
+backend/wipeUsers.js
