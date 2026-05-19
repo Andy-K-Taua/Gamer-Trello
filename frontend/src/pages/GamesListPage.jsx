@@ -1,8 +1,8 @@
 // frontend/src/pages/GamesListPage.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { axiosInstance } from '../lib/axios'; // FIXED: Use your configured instance for auth header/cookie support
+import { axiosInstance } from '../lib/axios';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -11,41 +11,40 @@ const GamesListPage = () => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [games, setGames] = useState([]);
-  const [isVerifying, setIsVerifying] = useState(true); // Added loading state for the gate check
-
-  console.log('Location:', location.pathname);
+  const [isVerifying, setIsVerifying] = useState(true);
+  
+  // Use a reference pointer to instantly kill infinite loop execution paths
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
     const verifyAccessAndFetchGames = async () => {
+      if (redirectingRef.current) return;
+
       try {
         console.log('Verifying subscription access...');
-        // 1. Hit the authorization guard endpoint first
         await axiosInstance.get('/subscriptions/check-expiry');
         
-        // 2. If it passes (200 OK), proceed to fetch games
         console.log('Access granted. Fetching games...');
-        const response = await axiosInstance.get('/games'); // Using base configuration endpoint routing
-        console.log('Response:', response.data);
+        const response = await axiosInstance.get('/games');
         
-        const gamesList = response.data.map((game) => {
-          console.log(`/images/${game.name}.png`);
-          return {
-            id: game.id,
-            name: game.name,
-            image: `/images/${game.name}.png`         
-          };
-        });
+        const gamesList = response.data.map((game) => ({
+          id: game.id,
+          name: game.name,
+          image: `/images/${game.name}.png`         
+        }));
         
         setGames(gamesList);
-        setIsVerifying(false); // Drop loading wall
+        setIsVerifying(false);
         
       } catch (error) {
         console.error("Authorization check failed:", error);
         
-        // 3. Handle the 401 Unauthorized status cleanly
         if (error.response && error.response.status === 401) {
-          toast.error("Access Denied: An active subscription or admin approval is required.");
-          navigate('/subscription'); // Hard bounce to pricing tier selection
+          redirectingRef.current = true; // Block subsequent triggers
+          toast.error("An active subscription plan is required to access games.");
+          
+          // Use replace: true to cleanly swap history contexts without tripping pushState
+          navigate('/subscription', { replace: true });
         } else {
           toast.error("An error occurred loading your dashboard.");
           setIsVerifying(false);
@@ -64,11 +63,10 @@ const GamesListPage = () => {
     game.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Render loading screen while verification is pending to prevent visual leak of games list
   if (isVerifying) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-base-200">
-        <Loader2 className="size-10 animate-spin text-success mb-2" />
+        <Loader2 className="size-10 animate-spin text-success mb-2"/>
         <span className="text-lg font-semibold text-base-content/70">Verifying access credentials...</span>
       </div>
     );
