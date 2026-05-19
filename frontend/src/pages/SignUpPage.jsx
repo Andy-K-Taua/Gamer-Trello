@@ -30,7 +30,6 @@ const TypeText = ({ text, speed = 40 }) => {
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for form action
 
   const [formData, setFormData] = useState({
     email: "",
@@ -38,20 +37,8 @@ const SignUpPage = () => {
     mobile: "",
   });
 
-  // Extract both the user payload and the store setter function to sync state
-  const { authUser, setAuthUser } = useAuthStore(); 
-
-  // AUTOMATIC ROUTE GUARD: If a user is already recorded in the store as logged in and approved,
-  // do not force them to click submit again. Guide them seamlessly where they need to be.
-  useEffect(() => {
-    if (authUser && authUser.approvalStatus === "approved") {
-      if (authUser.subscriptionPlan === "free") {
-        navigate('/subscription', { replace: true });
-      } else {
-        navigate('/games-list', { replace: true });
-      }
-    }
-  }, [authUser, navigate]);
+  // Extract both the loading state and the store sync setter function
+  const { isSigningUp, setAuthUser } = useAuthStore(); 
 
   const validateForm = () => {
     if (!formData.email.trim()) { toast.error("Email is required"); return false; }
@@ -65,21 +52,17 @@ const SignUpPage = () => {
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
 
+    // Trigger form validations before sending data
     const isValid = validateForm();
     if (!isValid) return;
 
-    setIsSubmitting(true);
-
     try {
-      // 1. Send the login/signup form data to backend
+      // 1. Send the login/signup form data
       const res = await axiosInstance.post('/auth/signup', formData);
 
-      // ===================================================================
-      // CRITICAL LOOP BREAK: Force Zustand to record who logged in!
-      // This stops AuthCheck from viewing them as an unauthenticated guest.
-      // ===================================================================
+      // CRITICAL LOGIC FIX: Commit user payload straight to the global Zustand store memory.
+      // This stops AuthCheck from misidentifying your active user session as a guest.
       if (res.data && !res.data.authUser) {
-        // Fallback context mapping if payload object is flat
         setAuthUser(res.data);
       } else {
         setAuthUser(res.data.authUser);
@@ -87,7 +70,7 @@ const SignUpPage = () => {
 
       if (res.data.isExistingUser) {
         try {
-          // 2. Existing user check against subscription database collection
+          // 2. Existing user check: this hits your middleware guard
           const expiryRes = await axiosInstance.get('/subscriptions/check-expiry');
 
           if (expiryRes.status === 200) {
@@ -95,16 +78,16 @@ const SignUpPage = () => {
             navigate('/games-list', { replace: true });
           }
         } catch (expiryError) {
-          // Handles the 401 response from the logs smoothly
+          // --- COVERS THE 401 DISCOVERED IN THE LOGS ---
           if (expiryError.response && expiryError.response.status === 401) {
-            toast.success("Account verified! Please select a plan to activate access.");
-            navigate('/subscription', { replace: true }); 
+            toast.success("Account verified! Please pick a plan to access games.");
+            navigate('/subscription', { replace: true }); // Redirects them to pay/select a plan cleanly
           } else {
             toast.error("An error occurred checking your access.");
           }
         }
       } else {
-        // Brand new user route
+        // Brand new user track
         toast.success("Account created successfully!");
         navigate('/subscription', { replace: true });
       }
@@ -113,8 +96,6 @@ const SignUpPage = () => {
       console.error("Auth submission error:", error);
       const errorMsg = error.response?.data?.message || "Invalid credentials";
       toast.error(errorMsg);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -122,7 +103,9 @@ const SignUpPage = () => {
     <div className="hero bg-base-200 min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse">
         <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">Create Account</h1>
+          <h1 className="text-5xl font-bold">
+            <TypeText text="Create Account" />
+          </h1>
           <p className="py-6">
             Create an account and experience a new found love for old school gaming. Take it with you wherever you go, challenge friends and family to beat your high score, and discover a world of limitless fun.
           </p>
@@ -138,7 +121,7 @@ const SignUpPage = () => {
                   <Mail className="size-5 text-base-content/40 mr-2" />
                   <input
                     type="email"
-                    className="flex-1 border-none outline-none bg-transparent text-gray-800"
+                    className="flex-1 border-none outline-none bg-transparent text-neutral"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -151,7 +134,7 @@ const SignUpPage = () => {
                   <Phone className="size-5 text-base-content/40 mr-2" />
                   <input
                     type="tel"
-                    className="flex-1 border-none outline-none bg-transparent text-gray-800"
+                    className="flex-1 border-none outline-none bg-transparent text-neutral"
                     placeholder="e.g. +61412345678"
                     value={formData.mobile}
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
@@ -164,7 +147,7 @@ const SignUpPage = () => {
                   <Lock className="size-5 text-base-content/40 mr-2" />
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="flex-1 border-none outline-none bg-transparent text-gray-800"
+                    className="flex-1 border-none outline-none bg-transparent text-neutral pr-10"
                     placeholder="Password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -183,12 +166,12 @@ const SignUpPage = () => {
                   </button>
                 </div>
 
-                <button className="btn btn-outline btn-success w-full"
+                <button className="btn btn-outline btn-success w-80"
                   type="submit"
                   style={{ marginTop: '20px', borderRadius: '15px' }}
-                  disabled={isSubmitting}
+                  disabled={isSigningUp}
                 >
-                  {isSubmitting ? (
+                  {isSigningUp ? (
                     <>
                       <Loader2 className="size-5 animate-spin" />
                       Loading...
