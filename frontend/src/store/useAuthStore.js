@@ -51,16 +51,34 @@ export const useAuthStore = create((set) => ({
             console.log(`Signup request took ${duration}ms to complete`);
             console.log("API request successful:", res);
             set({ authUser: res.data });
-            return res; // Return the response object
+            return res; 
         } catch (error) {
             const endTime = new Date().getTime();
             const duration = endTime - startTime;
             console.log(`Signup request failed after ${duration}ms`);
             console.error("Error making API request uce:", error);
             handleError(error, 'signup');
-            throw error; // Throw the error
+            throw error; 
         } finally {
             set({ isSigningUp: false });
+        }
+    },
+
+    // <-- Added this login function to match your unified backend requirements
+    login: async (data) => {
+        console.log("login data:", data);
+        set({ isLoggingIn: true });
+        try {
+            // Sends email, password, and mobile to your backend's unified route
+            const res = await axiosInstance.post("/auth/login", data);
+            set({ authUser: res.data });
+            toast.success("Logged in successfully");
+            return res;
+        } catch (error) {
+            handleError(error, 'login');
+            throw error;
+        } finally {
+            set({ isLoggingIn: false });
         }
     },
 

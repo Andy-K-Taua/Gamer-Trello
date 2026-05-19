@@ -7,8 +7,9 @@ import { protectRoute } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 router.post("/signup", signup)
+router.post("/login", signup) // <-- Added this line to route login requests to your unified controller
 router.post("/subscribe", subscribe)
 router.post("/logout", logout)
 router.get("/check", protectRoute, checkAuth);
 
-export default router; 
+export default router;

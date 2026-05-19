@@ -37,8 +37,8 @@ const SignUpPage = () => {
     mobile: "",
   });
 
-  // Extract both the loading state and the store sync setter function
-  const { isSigningUp, setAuthUser } = useAuthStore(); 
+  // Extract the unified action handler directly from the authentication store
+  const { isSigningUp, signup } = useAuthStore(); 
 
   const validateForm = () => {
     if (!formData.email.trim()) { toast.error("Email is required"); return false; }
@@ -57,16 +57,9 @@ const SignUpPage = () => {
     if (!isValid) return;
 
     try {
-      // 1. Send the login/signup form data
-      const res = await axiosInstance.post('/auth/signup', formData);
-
-      // CRITICAL LOGIC FIX: Commit user payload straight to the global Zustand store memory.
-      // This stops AuthCheck from misidentifying your active user session as a guest.
-      if (res.data && !res.data.authUser) {
-        setAuthUser(res.data);
-      } else {
-        setAuthUser(res.data.authUser);
-      }
+      // 1. Send the login/signup data through your unified store handler
+      // This automatically commits the session payload to the global Zustand store memory properly.
+      const res = await signup(formData);
 
       if (res.data.isExistingUser) {
         try {
@@ -104,7 +97,7 @@ const SignUpPage = () => {
       <div className="hero-content flex-col lg:flex-row-reverse">
         <div className="text-center lg:text-left">
           <h1 className="text-5xl font-bold">
-            <TypeText text="Create Account" />
+            <TypeText text="Create/Login" />
           </h1>
           <p className="py-6">
             Create an account and experience a new found love for old school gaming. Take it with you wherever you go, challenge friends and family to beat your high score, and discover a world of limitless fun.
