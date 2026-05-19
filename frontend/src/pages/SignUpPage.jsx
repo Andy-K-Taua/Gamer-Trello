@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, Phone } from "lucide-react"; // Added Phone icon
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone } from "lucide-react"; 
 import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
 import toast from "react-hot-toast";
@@ -30,52 +30,63 @@ const TypeText = ({ text, speed = 40 }) => {
 const SignUpPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  
-  // 1. Updated state schema to trace phone configuration tracking
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    mobile: "", 
+    mobile: "",
   });
 
-  const { signup, isSigningUp } = useAuthStore();
+  const { isSigningUp } = useAuthStore(); // Removed unused signup directly since you use axiosInstance directly below
 
-  // 2. Updated client-side schema checks for mobile presence validation
   const validateForm = () => {
-    if (!formData.email.trim()) return toast.error("Email is required");
-    if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
-    if (!formData.mobile.trim()) return toast.error("Mobile number is required");
-    if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (!formData.email.trim()) { toast.error("Email is required"); return false; }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) { toast.error("Invalid email format"); return false; }
+    if (!formData.mobile.trim()) { toast.error("Mobile number is required"); return false; }
+    if (formData.password.length < 6) { toast.error("Password must be at least 6 characters"); return false; }
 
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    const success = validateForm();
 
-    if (success === true) {
-      try {
-        const res = await signup(formData);
-        if (res.data.isExistingUser) {
-            const expiryRes = await axiosInstance.get('/subscriptions/check-expiry');
-            if (expiryRes.status === 200) {
-                toast.success("Welcome back!");
-                navigate('/games-list');
-            } else if (expiryRes.status === 401) {
-                toast.error("Subscription has expired");
-                navigate('/subscription');
-            } else {
-                toast.error("Error checking subscription status");
-                navigate('/subscription');
-            }
-        } else {
-            toast.success("New User");
-            navigate('/subscription');
+    // Trigger form validations before sending data
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    try {
+      // 1. Send the login/signup form data
+      const res = await axiosInstance.post('/auth/signup', formData);
+
+      if (res.data.isExistingUser) {
+        try {
+          // 2. Existing user check: this hits your middleware guard
+          const expiryRes = await axiosInstance.get('/subscriptions/check-expiry');
+
+          if (expiryRes.status === 200) {
+            toast.success("Welcome back!");
+            navigate('/games-list');
+          }
+        } catch (expiryError) {
+          // --- COVERS THE 401 DISCOVERED IN THE LOGS ---
+          if (expiryError.response && expiryError.response.status === 401) {
+            toast.error("Subscription has expired or is inactive.");
+            navigate('/subscription'); // Redirects them to pay/select a plan!
+          } else {
+            toast.error("An error occurred checking your access.");
+          }
         }
-    } catch (error) {
-        // left blank on purpose, handled in useAuthStore
+      } else {
+        // Brand new user track
+        toast.success("Account created successfully!");
+        navigate('/subscription');
       }
+
+    } catch (error) {
+      console.error("Auth submission error:", error);
+      const errorMsg = error.response?.data?.message || "Invalid credentials";
+      toast.error(errorMsg);
     }
   };
 
@@ -91,9 +102,10 @@ const SignUpPage = () => {
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
 
-            <form onSubmit={handleSubmit} className='space-y-6'>
+            {/* FIXED: Changed onSubmit to target handleAuthSubmit */}
+            <form onSubmit={handleAuthSubmit} className='space-y-6'>
               <fieldset className="fieldset">
-                
+
                 <label className="label">Email</label>
                 <div className="flex items-center input rounded-[15px]">
                   <Mail className="size-5 text-base-content/40 mr-2" />
@@ -107,7 +119,6 @@ const SignUpPage = () => {
                   />
                 </div>
 
-                {/* 3. New Phone Input Node */}
                 <label className="label">Mobile Number</label>
                 <div className="flex items-center input rounded-[15px]">
                   <Phone className="size-5 text-base-content/40 mr-2" />
