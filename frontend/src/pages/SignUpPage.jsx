@@ -67,6 +67,7 @@ const SignUpPage = () => {
                 navigate('/subscription');
             } else {
                 toast.error("Error checking subscription status");
+                navigate('/subscription');
             }
         } else {
             toast.success("New User");
