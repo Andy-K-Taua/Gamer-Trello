@@ -9,35 +9,46 @@ const __dirname = path.dirname(__filename);
 
 export const getGames = async (req, res) => {
   try {
-    // 1. Dynamically locate the games folder
-    // Locally, it's in public/games. On Render, it's in dist/games.
-    let gamesDir = path.resolve(__dirname, '../../../frontend/public/games');
+    // 1. Find the absolute path to your active directory root ('gamer-trello')
+    // This splits the path and slices it right up to your project root folder safely!
+    const currentPath = path.resolve(__dirname);
+    const rootIndex = currentPath.indexOf('gamer-trello');
+    
+    if (rootIndex === -1) {
+      throw new Error("Could not automatically locate 'gamer-trello' root directory folder.");
+    }
+    
+    const projectRoot = currentPath.substring(0, rootIndex + 'gamer-trello'.length);
+
+    // 2. Map targets directly from the absolute project root anchor point
+    let gamesDir = path.join(projectRoot, 'frontend', 'public', 'games');
     
     if (process.env.NODE_ENV === 'production') {
-      // In production on Render, look inside the compiled dist folder
-      gamesDir = path.resolve(__dirname, '../../frontend/dist/games');
+      gamesDir = path.join(projectRoot, 'frontend', 'dist', 'games');
     }
 
-    console.log('Attempting to read games from directory:', gamesDir);
+    console.log('=== TARGET PATH RESOLVED ===');
+    console.log('Searching inside directory:', gamesDir);
 
-    // 2. Read the directory files safely
+    // 3. Read the directory files safely
     let files = [];
     try {
       files = await fs.readdir(gamesDir);
+      console.log('Raw files discovered:', files);
     } catch (dirError) {
       console.warn(`Directory not found at ${gamesDir}. Falling back to empty array.`);
-      return res.json([]); // Return an empty array gracefully instead of crashing
+      return res.json([]); 
     }
 
-    // 3. Map files to game entities
+    // 4. Map files to game entities
     const games = files
-      .filter(file => !file.startsWith('.')) // Ignore hidden system files like .DS_Store
+      .filter(file => !file.startsWith('.')) 
       .map((file) => ({
         id: file,
-        name: file.replace(/\.[^/.]+$/, ''), // Remove file extension
+        name: file.replace(/\.[^/.]+$/, ''), // Remove file extension (e.g. "Sonic.smc" -> "Sonic")
       }));
 
-    // 4. Send the data back to the frontend!
+    console.log('Sending game list payload:', games);
     return res.json(games);
 
   } catch (err) {

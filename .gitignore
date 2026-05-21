@@ -18,9 +18,9 @@ dist/
 frontend/dist/
 
 # Python helper scripts
-snapshot.py
-frontend/inspect_frontend.py
-backend/inspect_backend.py
+master_snapshot.py
+frontend/snapshot_frontend.py
+backend/snapshot_backend.py
 
 # Javascript helper scripts
 backend/approveUsers.js

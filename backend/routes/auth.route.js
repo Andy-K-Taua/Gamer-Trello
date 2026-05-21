@@ -1,15 +1,15 @@
 // backend/routes/auth.route.js
-
 import express from "express";
-import { checkAuth, subscribe, logout, signup } from "../controllers/auth.controller.js";
+import { checkAuth, subscribe, logout, signup } from "../controllers/auth.controller.js"; // <-- Removed ', login'
 import { protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/signup", signup)
-router.post("/login", signup) // <-- Added this line to route login requests to your unified controller
-router.post("/subscribe", subscribe)
-router.post("/logout", logout)
+// Both paths route to your unified signup function, which safely branches under the hood
+router.post("/signup", signup);
+router.post("/login", signup); 
+router.post("/subscribe", subscribe);
+router.post("/logout", logout);
 router.get("/check", protectRoute, checkAuth);
 
 export default router;

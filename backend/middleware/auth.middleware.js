@@ -11,23 +11,32 @@ export const protectRoute = async (req, res, next) => {
             return res.status(401).json({ message: "Unauthorized - No Token Provided" });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Wrap token verification to safely catch verification drop out crashes
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (jwtError) {
+            return res.status(401).json({ message: "Unauthorized - Invalid or Expired Token" });
+        }
 
-        if (!decoded) {
-            return res.status(401).json({ message: "Unauthorized - Invalid Token" });
+        if (!decoded || !decoded.userId) {
+            return res.status(401).json({ message: "Unauthorized - Invalid Token Payload" });
         }
 
         const user = await User.findById(decoded.userId).select("-password");
 
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(401).json({ message: "Unauthorized - User not found" });
         }
 
         req.user = user;
 
-        next();
+        return next();
     } catch (error) {
         console.log("Error in protectRoute middleware: ", error.message);
-        res.status(500).json({ message: "Internal server error" });
+        // FIX: Return 401 instead of 500 so the frontend can catch it and redirect cleanly
+        return res.status(401).json({ message: "Authentication sequence failed" });
     }
 };
+
+export default protectRoute;

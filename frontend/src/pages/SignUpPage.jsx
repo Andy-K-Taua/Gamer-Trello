@@ -57,13 +57,19 @@ const SignUpPage = () => {
     if (!isValid) return;
 
     try {
-      // 1. Send the login/signup data through your unified store handler
-      // This automatically commits the session payload to the global Zustand store memory properly.
-      const res = await signup(formData);
+      // 1. Send data to your store
+      const userPayload = await signup(formData);
 
-      if (res.data.isExistingUser) {
+      // Extract the userData regardless of whether it's wrapped in an axios object or raw data
+      const userData = userPayload?.data ? userPayload.data : userPayload;
+
+      if (!userData) {
+        throw new Error("No user data returned from authentication service.");
+      }
+
+      // 2. Existing user track
+      if (userData.isExistingUser) {
         try {
-          // 2. Existing user check: this hits your middleware guard
           const expiryRes = await axiosInstance.get('/subscriptions/check-expiry');
 
           if (expiryRes.status === 200) {
@@ -71,23 +77,22 @@ const SignUpPage = () => {
             navigate('/games-list', { replace: true });
           }
         } catch (expiryError) {
-          // --- COVERS THE 401 DISCOVERED IN THE LOGS ---
           if (expiryError.response && expiryError.response.status === 401) {
             toast.success("Account verified! Please pick a plan to access games.");
-            navigate('/subscription', { replace: true }); // Redirects them to pay/select a plan cleanly
+            navigate('/subscription', { replace: true });
           } else {
             toast.error("An error occurred checking your access.");
           }
         }
       } else {
-        // Brand new user track
+        // 3. Brand new user track
         toast.success("Account created successfully!");
         navigate('/subscription', { replace: true });
       }
 
     } catch (error) {
       console.error("Auth submission error:", error);
-      const errorMsg = error.response?.data?.message || "Invalid credentials";
+      const errorMsg = error.response?.data?.message || error.message || "Invalid credentials";
       toast.error(errorMsg);
     }
   };

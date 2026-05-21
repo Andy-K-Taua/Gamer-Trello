@@ -12,7 +12,6 @@ const GamesListPage = () => {
   const [games, setGames] = useState([]);
   const [isVerifying, setIsVerifying] = useState(true);
   
-  // Use a reference pointer to instantly kill infinite loop execution paths
   const redirectingRef = useRef(false);
 
   useEffect(() => {
@@ -21,7 +20,8 @@ const GamesListPage = () => {
 
       try {
         console.log('Verifying subscription access...');
-        await axiosInstance.get('/subscriptions/check-expiry');
+        // UPDATED: Points to the new isolated path
+        await axiosInstance.get('/subscriptions/status/verify');
         
         console.log('Access granted. Fetching games...');
         const response = await axiosInstance.get('/games');
@@ -38,21 +38,22 @@ const GamesListPage = () => {
       } catch (error) {
         console.error("Authorization check failed:", error);
         
-        if (error.response && error.response.status === 401) {
-          redirectingRef.current = true; // Block subsequent triggers
+        const status = error.response?.status;
+        
+        // STOPS THE LOOP: Only redirect if it's an explicit 401 subscription wall
+        if (status === 401) {
+          redirectingRef.current = true;
           toast.error("An active subscription plan is required to access games.");
-          
-          // Use replace: true to cleanly swap history contexts without tripping pushState
           navigate('/subscription', { replace: true });
         } else {
-          toast.error("An error occurred loading your dashboard.");
+          // If the server has a 500 error, halt safely here instead of bouncing!
+          toast.error("Server synchronization error. Please try again later.");
           setIsVerifying(false);
         }
       }
     };
 
     verifyAccessAndFetchGames();
-    // REMOVED location.pathname from here to break the route-change loop trigger
   }, [navigate]);
 
   const handleGameClick = (gameName) => {

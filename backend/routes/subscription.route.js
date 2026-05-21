@@ -11,8 +11,11 @@ const router = express.Router();
 // This must be protected so we know exactly which user is choosing the plan
 router.post('/select-plan', protectRoute, subscriptionController.selectPlan);
 
-// Check subscription expiry
-router.get("/check-expiry", protectRoute, checkSubscriptionExpiryStatus);
+// 2. ISOLATED SUBSCRIPTION VERIFICATION
+// This uses a concrete namespace prefix to avoid colliding with variable ID paths below
+router.get("/status/verify", protectRoute, checkSubscriptionExpiryStatus, (req, res) => {
+    return res.status(200).json({ status: "active", message: "Subscription is active" });
+});
 
 // --- Standard Subscription CRUD Routes ---
 // Create a new subscription
@@ -21,7 +24,7 @@ router.post('/', subscriptionController.createSubscription);
 // Get all subscriptions
 router.get('/', subscriptionController.getAllSubscriptions);
 
-// Get a specific subscription by ID
+// Get a specific subscription by ID (Dynamic strings like ':id' fall safely below absolute segments)
 router.get('/:id', subscriptionController.getSubscriptionById);
 
 // Update a subscription

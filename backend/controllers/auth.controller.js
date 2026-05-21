@@ -12,6 +12,8 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
+        const trimmedMobile = mobile.trim();
+
         // Check if the user already exists by email
         const existingUser = await User.findOne({ email });
 
@@ -22,17 +24,20 @@ export const signup = async (req, res) => {
                 return res.status(400).json({ message: "Invalid email or password" });
             }
 
-            if (existingUser.mobile !== mobile.trim()) {
+            // Verify mobile matches database record to guarantee account ownership
+            if (existingUser.mobile !== trimmedMobile) {
                 return res.status(400).json({ message: "Mobile number does not match our records for this account" });
             }
 
             generateToken(existingUser._id, res);
 
+            // Return full operational state flags to guide frontend redirect engines
             return res.status(200).json({
                 _id: existingUser._id,
                 email: existingUser.email,
                 mobile: existingUser.mobile,
-                approvalStatus: existingUser.approvalStatus,
+                approvalStatus: existingUser.approvalStatus, // Crucial for routing straight to games vs pending block
+                subscriptionPlan: existingUser.subscriptionPlan || "none",
                 isExistingUser: true
             });
         }
@@ -42,7 +47,8 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "Password must be at least 6 characters" });
         }
 
-        const existingMobile = await User.findOne({ mobile });
+        // Ensure mobile unique constraint doesn't collision with an existing account
+        const existingMobile = await User.findOne({ mobile: trimmedMobile });
         if (existingMobile) {
             return res.status(400).json({ message: "Mobile number is already registered to another account" });
         }
@@ -53,7 +59,9 @@ export const signup = async (req, res) => {
         const newUser = new User({
             email,
             password: hashedPassword,
-            mobile: mobile.trim()
+            mobile: trimmedMobile,
+            subscriptionPlan: "none",      // Starts explicitly blank for subscription route mapping
+            approvalStatus: "pending"      // Held for CLI admin check
         });
 
         await newUser.save();
@@ -64,6 +72,7 @@ export const signup = async (req, res) => {
             email: newUser.email,
             mobile: newUser.mobile,
             approvalStatus: newUser.approvalStatus,
+            subscriptionPlan: newUser.subscriptionPlan,
             isExistingUser: false
         });
 
@@ -84,7 +93,7 @@ export const logout = async (req, res) => {
     }
 };
 
-// 3. SUBSCRIBE CONTROLLER (Fallback placeholder if referenced)
+// 3. SUBSCRIBE CONTROLLER 
 export const subscribe = async (req, res) => {
     try {
         res.status(200).json({ message: "Subscription logic route active" });
@@ -94,9 +103,10 @@ export const subscribe = async (req, res) => {
     }
 };
 
-// 4. CHECK AUTH CONTROLLER (The missing link causing the crash)
+// 4. CHECK AUTH CONTROLLER
 export const checkAuth = async (req, res) => {
     try {
+        // req.user is supplied dynamically from protectRoute middleware
         res.status(200).json({ authUser: req.user });
     } catch (error) {
         console.log("Error in checkAuth controller", error.message);
