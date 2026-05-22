@@ -70,18 +70,23 @@ const SignUpPage = () => {
       // 2. Existing user track
       if (userData.isExistingUser) {
         try {
-          const expiryRes = await axiosInstance.get('/subscriptions/check-expiry');
+          // UPDATED: Pointed to the corrected absolute endpoint path string to align with subscription.route.js
+          const expiryRes = await axiosInstance.get('/subscriptions/status/verify');
 
-          if (expiryRes.status === 200) {
+          if (expiryRes.status === 200 || expiryRes.status === 304) {
             toast.success("Welcome back!");
             navigate('/games-list', { replace: true });
           }
         } catch (expiryError) {
+          // If the verification controller returns an explicit unauthenticated block
           if (expiryError.response && expiryError.response.status === 401) {
             toast.success("Account verified! Please pick a plan to access games.");
             navigate('/subscription', { replace: true });
           } else {
-            toast.error("An error occurred checking your access.");
+            // Safety fallback: Redirect to subscription panel if verification returns empty/errors
+            console.warn("Subscription check returned an error status:", expiryError);
+            toast.success("Welcome back! Please verify your subscription option.");
+            navigate('/subscription', { replace: true });
           }
         }
       } else {
