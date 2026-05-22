@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import fs from 'fs';
 import cors from "cors";
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 import path from 'node:path';
 
 import { connectDB } from "../lib/db.js";
@@ -30,6 +30,7 @@ fs.readdir(frontendBuildPath, (err, files) => {
   }
 });
 
+// Force check Render's dynamic port assignment
 const PORT = process.env.PORT || 10000;
 const HOST = '0.0.0.0';
 
@@ -38,25 +39,20 @@ app.use(express.json());
 app.use(cookieParser());
 
 // 2. Dynamic CORS Configuration
-// In production (Render), since the frontend is served from the backend service, 
-// we allow credentials and fallback gracefully without hardcoding placeholders.
 const allowedOrigins = ["http://localhost:5173"];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or same-origin static apps)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      // On Render, same-origin requests won't send an "Origin" header for standard fetches,
-      // but if a mismatch happens, this block dynamically allows it.
       callback(null, true);
     }
   },
   credentials: true
 }));
 
-// 3. API Routes (PLACE THESE BEFORE STATIC FILES)
+// 3. API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use('/api', gamesRoute);
@@ -68,14 +64,13 @@ app.get('/test', (req, res) => {
 // 4. Static Client Assets Middleware
 app.use(express.static(frontendBuildPath));
 
-// 5. Catch-all fallback route (Skips /api and /games to allow static file streaming)
-app.get(/^(?!\/(api|games)).*$/, (req, res) => {
-  try {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-  } catch (error) {
-    console.error("SPA Routing Error while serving index.html:", error);
-    res.status(500).send('Error serving index.html');
+// 5. Catch-all fallback route for Single Page App routing
+// Simply handles everything that doesn't hit a static asset or API route cleanly
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API route not found' });
   }
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
 
 console.log('Server is about to start listening...');
