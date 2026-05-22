@@ -12,7 +12,10 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 
 1. Multiplayer using browser or bluetooth connection
 2. Refactor Code 
-3. Add more trouble-shooting logs for developers
+3. Advertisement/Marketing Plugin
+4. Sign out
+5. Add more games
+6. Add PWA feature
 
 ## Installation and Setup
 
