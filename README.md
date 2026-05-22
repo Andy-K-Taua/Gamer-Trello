@@ -13,8 +13,7 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 1. Multiplayer using browser or bluetooth connection 
 2. Advertisement/Marketing Plugin
 3. Add more games
-4. Add PWA feature
-5. Payment Gateway
+4. Payment Gateway
 
 ## Installation and Setup
 
