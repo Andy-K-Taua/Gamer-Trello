@@ -108,42 +108,34 @@ const Gamepad = () => {
 
 
   return (
-    // Added relative positioning to parent container so the logout button sits neatly on top
-    <div className="w-full h-screen mx-auto flex justify-center items-center relative bg-base-300"> 
+    // Changed to a column flex layout with padding to ensure vertical space insulation
+    <div className="w-full min-h-screen mx-auto flex flex-col justify-center items-center p-4 bg-base-300"> 
       
-      {/* 4. SLEEK ABSOLUTE LOGOUT CONTROLLER BUTTON */}
-      <button
-        onClick={logout}
-        className="absolute top-6 right-6 btn btn-error btn-outline flex items-center gap-2 rounded-[15px] px-4 shadow-lg z-50 bg-black/40 backdrop-blur-sm"
-        type="button"
-      >
-        <LogOut className="size-4" />
-        <span className="hidden sm:inline font-semibold">Log Out</span>
-      </button>
+      {/* 1. BUTTON HEADER ZONE: Pushed cleanly above the console block with custom margin */}
+      <div className="w-11/12 max-w-4xl flex justify-end mb-3 sm:mb-5">
+        <button
+          onClick={logout}
+          className="btn btn-error btn-outline btn-sm sm:btn-md flex items-center gap-2 rounded-[15px] px-4 shadow-md bg-black/20 backdrop-blur-sm"
+          type="button"
+        >
+          <LogOut className="size-3.5 sm:size-4" />
+          <span className="font-semibold text-xs sm:text-sm">Log Out</span>
+        </button>
+      </div>
 
-      <div className="flex justify-between items-center w-11/12 h-80 bg-black p-4 rounded-[40px] shadow-md">
+      {/* 2. THE MAIN RETRO CONSOLE CONTAINER */}
+      <div className="flex justify-between items-center w-11/12 h-64 sm:h-80 bg-black p-4 rounded-[40px] shadow-md transition-all duration-200">
 
         {/* Left div: Arrows */}
-
-        
-        {/* <div className="flex flex-col items-center justify-center w-1/6 mr-4">
-          ...
-        </div> */}
-
+        {/* <div className="flex flex-col items-center justify-center w-1/6 mr-4">...</div> */}
 
         {/* Middle div: EmulatorJS */}
-
-
         <div className="w-full h-full bg-gray-800 flex justify-center items-center border border-gray-700 rounded-['40px'] mx-2">
           <RetroArchEmulator key={gameName} ref={retroArchRef} game={gameName}/>
         </div>
 
         {/* Right div: Buttons */}
-
-
-        {/* <div className="flex flex-col items-center justify-center w-1/6 ml-2">
-          ...
-        </div> */}
+        {/* <div className="flex flex-col items-center justify-center w-1/6 ml-2">...</div> */}
 
       </div>
     </div>
