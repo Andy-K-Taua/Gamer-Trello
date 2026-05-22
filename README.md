@@ -15,6 +15,7 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 3. Advertisement/Marketing Plugin
 4. Sign out
 5. Add more games
+6. Add PWA feature
 
 ## Installation and Setup
 
