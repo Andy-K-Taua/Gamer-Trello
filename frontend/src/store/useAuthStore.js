@@ -15,7 +15,7 @@ const handleError = (error, functionName) => {
     console.error(`Error in ${functionName}:`, error);
 };
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
@@ -33,7 +33,11 @@ export const useAuthStore = create((set) => ({
         } catch (error) {
             console.log("Error in checkAuth:", error);
             set({ authUser: null });
-            handleError(error, 'checkAuth');
+            
+            // ONLY throw a toast if it's NOT a normal 401 unauthenticated status
+            if (error.response?.status !== 401) {
+                handleError(error, 'checkAuth');
+            }
         } finally {
             console.log("Finished checking authentication.");
             set({ isCheckingAuth: false });
@@ -101,10 +105,11 @@ export const useAuthStore = create((set) => ({
             await axiosInstance.post("/auth/logout");
             set({ authUser: null });
             toast.success("Logged out successfully");
-            get().disconnectSocket();
+            if (get().disconnectSocket) {
+                get().disconnectSocket();
+            }
         } catch (error) {
-            handleError(error);
-            toast.error(error.response.data.message);
+            handleError(error, 'logout');
         }
     },
 }));
