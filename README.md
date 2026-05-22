@@ -16,6 +16,7 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 4. Sign out
 5. Add more games
 6. Add PWA feature
+7. Payment Gateway
 
 ## Installation and Setup
 
