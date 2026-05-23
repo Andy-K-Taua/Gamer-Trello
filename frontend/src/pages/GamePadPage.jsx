@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import RetroArchEmulator from '../components/RetroArchEmulator';
 import { useAuthStore } from '../store/useAuthStore';
-import { LogOut } from 'lucide-react';
+import { LogOut, ArrowBigLeftDash } from 'lucide-react';
 
 const GamePadPage = () => {
   const { gameName } = useParams();
@@ -44,11 +44,36 @@ const GamePadPage = () => {
     window.location.href = '/';
   };
 
+  const handleBackClick = () => {
+    // 1. Explicitly kill emulator
+    if (window.EJS_emulator?.stop) {
+      window.EJS_emulator.stop();
+    }
+
+    // 2. Kill the audio context (prevents zombie sound)
+    if (window.AudioContext) {
+      new window.AudioContext().close().catch(() => { });
+    }
+
+    // 3. Navigate back
+    navigate(-1);
+  };
+
   return (
     <div className="w-full min-h-screen mx-auto flex flex-col justify-center items-center p-4 bg-base-300">
 
       {/* BUTTON HEADER ZONE: Isolated cleanly above the screen console layout */}
-      <div className="w-11/12 max-w-4xl flex justify-end mb-3 sm:mb-5">
+      <div className="w-11/12 max-w-4xl flex justify-between items-center mb-3 sm:mb-5">
+
+        <button
+          onClick={handleBackClick} // Use the new handler instead of inline navigate(-1)
+          className="btn btn-success btn-outline btn-sm sm:btn-md flex items-center gap-2 rounded-[15px] px-7 shadow-md bg-black/20 backdrop-blur-sm"
+          type="button"
+        >
+          <ArrowBigLeftDash className="size-3.5 sm:size-4" />
+          <span className="font-semibold text-xs sm:text-sm">Back</span>
+        </button>
+
         <button
           onClick={handleLogoutClick}
           className="btn btn-error btn-outline btn-sm sm:btn-md flex items-center gap-2 rounded-[15px] px-4 shadow-md bg-black/20 backdrop-blur-sm"

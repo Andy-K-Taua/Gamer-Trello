@@ -4,7 +4,7 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 
 ## Features
 
-* Feature 1 - 2FA, JWT, User Freindly Login/Create
+* Feature 1 - JWT, User Freindly Login/Create
 * Feature 2 - Payment Gateway, Subscription
 * Feature 3 - MERN stack 
 
@@ -14,6 +14,7 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 2. Advertisement/Marketing Plugin
 3. Add more games
 4. Payment Gateway
+5. 2FA, waiting turns into, enter 4 digit code sent to mobile
 
 ## Installation and Setup
 
