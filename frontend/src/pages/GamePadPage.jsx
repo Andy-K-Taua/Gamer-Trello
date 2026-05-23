@@ -3,8 +3,8 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import RetroArchEmulator from '../components/RetroArchEmulator';
-import { useAuthStore } from '../store/useAuthStore'; 
-import { LogOut } from 'lucide-react'; 
+import { useAuthStore } from '../store/useAuthStore';
+import { LogOut } from 'lucide-react';
 
 const GamePadPage = () => {
   const { gameName } = useParams();
@@ -26,15 +26,27 @@ const GamePadPage = () => {
 
   // Executes auth removal and sweeps the client back to the main landing view
   const handleLogoutClick = async () => {
-    await logout();
+    // 1. SAFE STOP: Use optional chaining (?.) 
+    // This stops the app from crashing if the emulator is still loading.
+    if (window.EJS_emulator?.stop) {
+      window.EJS_emulator.stop();
+    }
 
+    // 2. Perform the logout
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
+
+    // 3. Force clean navigation
+    // We navigate to '/' and force a reload to clear the memory
     window.location.href = '/';
-    
   };
 
   return (
-    <div className="w-full min-h-screen mx-auto flex flex-col justify-center items-center p-4 bg-base-300"> 
-      
+    <div className="w-full min-h-screen mx-auto flex flex-col justify-center items-center p-4 bg-base-300">
+
       {/* BUTTON HEADER ZONE: Isolated cleanly above the screen console layout */}
       <div className="w-11/12 max-w-4xl flex justify-end mb-3 sm:mb-5">
         <button
@@ -49,10 +61,10 @@ const GamePadPage = () => {
 
       {/* THE MAIN RETRO CONSOLE FRAME */}
       <div className="flex justify-between items-center w-11/12 h-64 sm:h-80 bg-black p-4 rounded-[40px] shadow-md transition-all duration-200">
-        
+
         {/* Middle Canvas Container: EmulatorJS Mounting Wrapper */}
         <div className="w-full h-full bg-gray-800 flex justify-center items-center border border-gray-700 rounded-2xl mx-2 overflow-hidden">
-          <RetroArchEmulator key={gameName} game={gameName}/>
+          <RetroArchEmulator key={gameName} game={gameName} />
         </div>
 
       </div>
