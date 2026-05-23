@@ -1,4 +1,5 @@
-// vite.config.js
+// frontend/vite.config.js
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -11,8 +12,16 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      // Include standard structural graphic assets
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'images/**/*.png'],
+      // UPDATED: Added the EmulatorJS framework and emulator.min.js file paths to secure offline functionality
+      includeAssets: [
+        'favicon.ico', 
+        'apple-touch-icon.png', 
+        'images/**/*.png',
+        'EmulatorJS-4.2.1/data/loader.js',
+        'EmulatorJS-4.2.1/data/emulator.min.js', 
+        'EmulatorJS-4.2.1/data/emulator.css',
+        'EmulatorJS-4.2.1/data/version.json'
+      ],
       manifest: {
         name: 'Gamer Trello Console',
         short_name: 'GamerTrello',
@@ -43,15 +52,17 @@ export default defineConfig({
       },
       // Advanced service worker behaviors handling binary file assets
       workbox: {
+        // Increases the fallback limit for pre-cached/bundled assets just in case
+        maximumFileSizeToCacheInBytes: 5000000, 
         runtimeCaching: [
           {
-            // Intercepts and caches emulator engine assets and game ROMs matching these routes
-            urlPattern: /.*\.(?:json|js|css|wasm|nes|gb|gbc|gba|sfc|md)$/i,
+            // Explicitly handles anything inside your EmulatorJS folder OR standard retro extension tracks
+            urlPattern: /.*(?:EmulatorJS-4.2.1|\.(?:json|js|css|wasm|nes|gb|gbc|gba|sfc|md))$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'retroarch-game-assets',
               expiration: {
-                maxEntries: 100, // Safe ceiling for your retro catalog
+                maxEntries: 150, // Slightly increased to fit regional JSON configuration layers
                 maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days persistence window
               },
               cacheableResponse: {

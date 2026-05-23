@@ -27,6 +27,7 @@ const GamePadPage = () => {
   // Executes auth removal and sweeps the client back to the main landing view
   const handleLogoutClick = async () => {
     await logout();
+    window.location.reload();
     navigate('/', { replace: true });
   };
 
