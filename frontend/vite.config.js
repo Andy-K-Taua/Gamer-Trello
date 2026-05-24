@@ -12,7 +12,6 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      // UPDATED: Added the EmulatorJS framework and emulator.min.js file paths to secure offline functionality
       includeAssets: [
         'favicon.ico',
         'apple-touch-icon.png',
@@ -50,23 +49,21 @@ export default defineConfig({
           }
         ]
       },
-      // Advanced service worker behaviors handling binary file assets
       workbox: {
-        maximumFileSizeToCacheInBytes: 10000000, // Increased to 10MB to cover larger core files
-        cleanupOutdatedCaches: true, // IMPORTANT: Forces the service worker to delete old versions
-        clientsClaim: true, // Forces the waiting service worker to become the active one immediately
-        skipWaiting: true,  // Important for fast updates
+        maximumFileSizeToCacheInBytes: 10000000,
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         runtimeCaching: [
           {
             urlPattern: /.*(?:EmulatorJS-4.2.1|\.(?:json|js|css|wasm|nes|gb|gbc|gba|sfc|md))$/i,
-            handler: 'CacheFirst',
+            handler: 'NetworkFirst',
             options: {
               cacheName: 'retroarch-game-assets',
               expiration: {
                 maxEntries: 200,
                 maxAgeSeconds: 30 * 24 * 60 * 60,
               },
-              // ADD THIS: This helps prevent the Service Worker from being "stuck"
               networkTimeoutSeconds: 3,
             },
           },
