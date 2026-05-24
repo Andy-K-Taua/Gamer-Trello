@@ -11,22 +11,21 @@ const GamePadPage = () => {
   const { logout } = useAuthStore();
 
   const handleLogoutClick = async () => {
-    if (window.EJS_emulator?.stop) window.EJS_emulator.stop();
-    if (window.AudioContext) new window.AudioContext().close().catch(() => {});
-    
-    try {
-      await logout();
-    } catch (err) {
-      console.error("Logout request failed:", err);
-    }
-    window.location.href = '/';
-  };
+  try {
+    await logout();
+  } catch (err) {
+    console.error("Logout request failed:", err);
+  }
+
+  window.location.href = '/';
+};
 
   const handleBackClick = () => {
-    if (window.EJS_emulator?.stop) window.EJS_emulator.stop();
-    if (window.AudioContext) new window.AudioContext().close().catch(() => {});
-    navigate(-1);
-  };
+  navigate(-1);
+  setTimeout(() => {
+    window.location.reload();
+  }, 80);
+};
 
   return (
     <div className="w-full min-h-screen mx-auto flex flex-col justify-center items-center p-4 bg-base-300">
@@ -46,7 +45,7 @@ const GamePadPage = () => {
 
         {/* REFRESH BUTTON */}
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => window.location.href = window.location.href}
           className="btn btn-warning btn-outline btn-sm sm:btn-md flex items-center justify-center gap-2 rounded-[15px] shadow-md bg-black/20 backdrop-blur-sm"
           type="button"
         >

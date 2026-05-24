@@ -14,11 +14,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       // UPDATED: Added the EmulatorJS framework and emulator.min.js file paths to secure offline functionality
       includeAssets: [
-        'favicon.ico', 
-        'apple-touch-icon.png', 
+        'favicon.ico',
+        'apple-touch-icon.png',
         'images/**/*.png',
         'EmulatorJS-4.2.1/data/loader.js',
-        'EmulatorJS-4.2.1/data/emulator.min.js', 
+        'EmulatorJS-4.2.1/data/emulator.min.js',
         'EmulatorJS-4.2.1/data/emulator.css',
         'EmulatorJS-4.2.1/data/version.json'
       ],
@@ -52,22 +52,22 @@ export default defineConfig({
       },
       // Advanced service worker behaviors handling binary file assets
       workbox: {
-        // Increases the fallback limit for pre-cached/bundled assets just in case
-        maximumFileSizeToCacheInBytes: 5000000, 
+        maximumFileSizeToCacheInBytes: 10000000, // Increased to 10MB to cover larger core files
+        cleanupOutdatedCaches: true, // IMPORTANT: Forces the service worker to delete old versions
+        clientsClaim: true, // Forces the waiting service worker to become the active one immediately
+        skipWaiting: true,  // Important for fast updates
         runtimeCaching: [
           {
-            // Explicitly handles anything inside your EmulatorJS folder OR standard retro extension tracks
             urlPattern: /.*(?:EmulatorJS-4.2.1|\.(?:json|js|css|wasm|nes|gb|gbc|gba|sfc|md))$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'retroarch-game-assets',
               expiration: {
-                maxEntries: 150, // Slightly increased to fit regional JSON configuration layers
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days persistence window
+                maxEntries: 200,
+                maxAgeSeconds: 30 * 24 * 60 * 60,
               },
-              cacheableResponse: {
-                statuses: [0, 200], // Caches standard responses securely
-              },
+              // ADD THIS: This helps prevent the Service Worker from being "stuck"
+              networkTimeoutSeconds: 3,
             },
           },
         ],
@@ -75,7 +75,7 @@ export default defineConfig({
     })
   ],
   css: {
-    transformer: 'lightningcss' 
+    transformer: 'lightningcss'
   },
   envDir: '../backend',
   build: {
