@@ -11,6 +11,7 @@ import { connectDB } from "../lib/db.js";
 import authRoutes from "../routes/auth.route.js";
 import subscriptionRoutes from "../routes/subscription.route.js";
 import gamesRoute from '../routes/games.route.js';
+import { webhookHandler } from "../controllers/webhook.controller.js";
 
 dotenv.config();
 
@@ -34,6 +35,9 @@ fs.readdir(frontendBuildPath, (err, files) => {
 const PORT = process.env.PORT || 10000;
 const HOST = '0.0.0.0';
 
+// 1. Mount the Webhook route BEFORE express.json()
+// We use express.raw({ type: 'application/json' }) to get the raw body needed for signature verification
+app.post("/api/subscriptions/webhook", express.raw({ type: 'application/json' }), webhookHandler);
 // 1. Global Essential Middleware
 app.use(express.json());
 app.use(cookieParser());

@@ -22,6 +22,8 @@ export const useAuthStore = create((set, get) => ({
 
     isCheckingAuth: true,
 
+    setAuthUser: (user) => set({ authUser: user }),
+
     checkAuth: async () => {
         try {
             console.log("Checking authentication...");
@@ -68,7 +70,6 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    // <-- Added this login function to match your unified backend requirements
     login: async (data) => {
         console.log("login data:", data);
         set({ isLoggingIn: true });

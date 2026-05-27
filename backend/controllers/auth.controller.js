@@ -1,4 +1,5 @@
 // backend/controllers/auth.controller.js
+
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
@@ -6,7 +7,7 @@ import { generateToken } from "../lib/utils.js";
 // 1. UNIFIED SIGNUP / LOGIN CONTROLLER
 export const signup = async (req, res) => {
     const { email, password, mobile } = req.body;
-    
+
     try {
         if (!email || !password || !mobile) {
             return res.status(400).json({ message: "All fields are required" });
@@ -66,7 +67,7 @@ export const signup = async (req, res) => {
 
         await newUser.save();
         generateToken(newUser._id, res);
-        
+
         return res.status(201).json({
             _id: newUser._id,
             email: newUser.email,
@@ -112,4 +113,29 @@ export const checkAuth = async (req, res) => {
         console.log("Error in checkAuth controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
     }
+};
+
+export const masterLogin = async (req, res) => {
+    const { mobile } = req.body;
+
+    // console.log("DEBUG: Attempting master login for mobile:", mobile);
+    // console.log("DEBUG: Env variable:", process.env.VITE_MASTER_MOBILE_NUMBER);
+
+    // Compare against the server's environment variable
+    if (mobile === process.env.VITE_MASTER_MOBILE_NUMBER) {
+        const user = await User.findOne({ mobile: mobile });
+
+        console.log("DEBUG: User found in DB:", !!user);
+
+        if (!user) return res.status(404).json({ message: "Master account not found" });
+
+        const token = generateToken(user._id, res);
+
+        return res.status(200).json({
+            message: "Master access granted",
+            user: { _id: user._id, name: user.name, role: user.role }
+        });
+    }
+
+    res.status(401).json({ message: "Invalid credentials" });
 };

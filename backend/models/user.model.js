@@ -25,7 +25,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending", // All new signups start here
-    }
+    },
+    hasPaid: { 
+    type: Boolean, 
+    default: false 
+  },
+  stripeCustomerId: String,
   },
   { timestamps: true }
 );

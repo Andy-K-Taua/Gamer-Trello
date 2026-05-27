@@ -2,12 +2,13 @@
 
 import Subscription from '../models/subscription.model.js';
 import User from '../models/user.model.js'; // Imported User model to manage approval states
+import { stripe } from "../lib/stripe.js";
 
 // 1. SELECT PLAN & MARK PENDING FOR CLI APPROVAL (New Method)
 const selectPlan = async (req, res) => {
   try {
     const { plan } = req.body; // e.g., "Premium", "Basic"
-    
+
     if (!plan) {
       return res.status(400).json({ message: "Plan selection is required" });
     }
@@ -23,13 +24,47 @@ const selectPlan = async (req, res) => {
     user.approvalStatus = 'pending';
     await user.save();
 
-    res.status(200).json({ 
-      message: "Plan selected successfully, pending admin approval.", 
+    res.status(200).json({
+      message: "Plan selected successfully, pending admin approval.",
       subscriptionPlan: user.subscriptionPlan,
-      approvalStatus: user.approvalStatus 
+      approvalStatus: user.approvalStatus
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const createCheckoutSession = async (req, res) => {
+  try {
+    const { plan } = req.body;
+
+    // Make sure you replace these with your actual IDs from the Stripe Dashboard
+    const priceMap = {
+      standard: 'price_1TbXImGuR5zwChHMxqdxR6JA',
+      premium: 'price_1TbWgVGuR5zwChHMxySDXI15'
+    };
+
+    const session = await stripe.checkout.sessions.create({
+      // line_items must be an ARRAY []
+      line_items: [
+        {
+          price: priceMap[plan],
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:5173/subscription',
+      cancel_url: 'http://localhost:5173/subscription',
+      metadata: {
+        userId: req.user._id.toString(),
+      },
+    });
+
+    res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error("FULL STRIPE ERROR:", error);
+    
+    res.status(500).json({ message: "Failed to create checkout session", error: error.message });
   }
 };
 
@@ -106,7 +141,8 @@ const checkSubscriptionExpiryStatus = async (req, res) => {
 };
 
 export default {
-  selectPlan, // Exported new method
+  selectPlan,
+  createCheckoutSession,
   createSubscription,
   getAllSubscriptions,
   getSubscriptionById,

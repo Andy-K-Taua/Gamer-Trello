@@ -21,7 +21,8 @@ const plans = {
 const SubscriptionPage = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
-  
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
+
   // States for handling the animated approval modal and polling loop
   const [showPendingModal, setShowPendingModal] = useState(false);
   const pollingRef = useRef(null);
@@ -32,7 +33,7 @@ const SubscriptionPage = () => {
         const response = await axiosInstance.get('/auth/check');
         if (response.data && response.data.authUser && response.data.authUser._id) {
           setUserId(response.data.authUser._id);
-          
+
           // Self-recovery: if the page loads but they are already approved, pass them through
           if (response.data.authUser.approvalStatus === 'approved') {
             navigate('/games-list');
@@ -50,6 +51,20 @@ const SubscriptionPage = () => {
     };
   }, [navigate]);
 
+
+  useEffect(() => {
+    // If the user has paid but is still pending approval, show them they are in the queue
+    const checkPaymentStatus = async () => {
+      const res = await axiosInstance.get('/auth/check');
+      if (res.data.authUser.hasPaid && res.data.authUser.approvalStatus === 'pending') {
+        setShowPendingModal(true);
+        setIsPaymentConfirmed(true); // You can use this to change the Modal text
+        startApprovalPolling();
+      }
+    };
+    checkPaymentStatus();
+  }, []);
+
   // Starts pinging the backend to check if the admin has typed their choice into the CLI yet
   const startApprovalPolling = () => {
     if (pollingRef.current) clearInterval(pollingRef.current);
@@ -57,7 +72,7 @@ const SubscriptionPage = () => {
     pollingRef.current = setInterval(async () => {
       try {
         const res = await axiosInstance.get('/auth/check');
-        
+
         if (res.data && res.data.authUser) {
           const { approvalStatus } = res.data.authUser;
           console.log("Checking approval status heartbeat...", approvalStatus);
@@ -76,49 +91,76 @@ const SubscriptionPage = () => {
 
   const handlePlanSelection = async (planId) => {
     if (!userId) return;
-  
+
+    // 1. For "free" plan, keep your existing logic
+    if (planId === plans.free) {
+      try {
+        await axiosInstance.post('/subscriptions/select-plan', { plan: planId });
+        setShowPendingModal(true);
+        startApprovalPolling();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      return;
+    }
+
+    // 2. For paid plans (Standard/Premium), call Stripe
     try {
-      // 1. Target the new choice endpoint to set status to 'pending'
-      await axiosInstance.post('/subscriptions/select-plan', {
+      // Call the new checkout session endpoint
+      const response = await axiosInstance.post('/subscriptions/create-checkout-session', {
         plan: planId,
       });
-      
-      // 2. Open up the thank you waiting popup view and kick off the interval engine
-      setShowPendingModal(true);
-      startApprovalPolling();
 
+      // Stripe returns a URL, we redirect the user to that URL
+      if (response.data && response.data.url) {
+        window.location.href = response.data.url;
+      }
     } catch (error) {
-      console.error("Error processing plan tracking payload:", error);
+      console.error("Error initiating Stripe session:", error);
+      alert("Could not start payment. Please try again.");
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 relative">
-      
+
       {/* --- ANIMATED PENDING APPROVAL MODAL OVERLAY --- */}
       {showPendingModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-fade-in backdrop-blur-sm">
           <div className="card w-96 bg-base-100 shadow-2xl p-6 text-center border border-success/20 transform scale-100 transition-transform duration-300">
             <div className="flex flex-col items-center space-y-4">
-              
-              {/* Spinning DaisyUI Gamepad / Circle Accents */}
+
+              {/* Spinning DaisyUI Gamepad / Circle Accents - Original Animations Kept */}
               <div className="relative flex items-center justify-center">
                 <Loader2 className="size-16 text-success animate-spin" />
                 <GamepadIcon className="size-6 text-success absolute" />
               </div>
 
-              <h2 className="text-2xl font-bold text-base-content">Thank you for waiting!</h2>
-              
+              {/* Dynamic Heading */}
+              <h2 className="text-2xl font-bold text-base-content">
+                {isPaymentConfirmed ? "Payment Received!" : "Thank you for waiting!"}
+              </h2>
+
               <div className="space-y-2">
+                {/* Dynamic Message */}
                 <p className="text-sm text-gray-500 font-medium">
-                  Your account registration is currently <span className="text-warning font-semibold animate-pulse">pending approval</span>.
+                  {isPaymentConfirmed
+                    ? "Payment confirmed. We are finalizing your account approval."
+                    : "Your account registration is currently "}
+                  {!isPaymentConfirmed && <span className="text-warning font-semibold animate-pulse">pending approval</span>}.
                 </p>
+
+                {/* Success Indicator with Pulse Animation */}
+                {isPaymentConfirmed && (
+                  <p className="text-xs text-success font-bold animate-pulse">✓ Payment successfully processed</p>
+                )}
+
                 <p className="text-xs text-gray-400">
                   We are processing your selection. This screen will automatically update once confirmed by our administration team.
                 </p>
               </div>
 
-              {/* Progress visual bar indicator */}
+              {/* Original Progress Bar */}
               <progress className="progress progress-success w-full mt-2" />
             </div>
           </div>

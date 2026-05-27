@@ -4,8 +4,14 @@ import express from 'express';
 import subscriptionController from '../controllers/subscription.controller.js';
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { checkSubscriptionExpiryStatus } from "../middleware/subscription.middleware.js";
+import { createCheckoutSession } from '../controllers/subscription.controller.js';
+import { webhookHandler } from "../controllers/webhook.controller.js";
 
 const router = express.Router();
+
+router.post("/webhook", webhookHandler);
+
+router.post('/create-checkout-session', protectRoute, createCheckoutSession);
 
 // 1. SELECT SUBSCRIPTION PLAN (New route for the approval flow)
 // This must be protected so we know exactly which user is choosing the plan

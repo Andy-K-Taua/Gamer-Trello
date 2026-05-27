@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, Phone } from "lucide-react"; 
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
 import toast from "react-hot-toast";
@@ -38,9 +38,18 @@ const SignUpPage = () => {
   });
 
   // Extract the unified action handler directly from the authentication store
-  const { isSigningUp, signup } = useAuthStore(); 
+  const { isSigningUp, signup } = useAuthStore();
 
   const validateForm = () => {
+
+    // 1. Get the master number for comparison
+    const MASTER_NUMBER = import.meta.env.VITE_MASTER_MOBILE_NUMBER;
+
+    // 2. If it's the master number, skip email/password validation
+    if (formData.mobile.trim() === MASTER_NUMBER) {
+      return true;
+    }
+
     if (!formData.email.trim()) { toast.error("Email is required"); return false; }
     if (!/\S+@\S+\.\S+/.test(formData.email)) { toast.error("Invalid email format"); return false; }
     if (!formData.mobile.trim()) { toast.error("Mobile number is required"); return false; }
@@ -49,10 +58,46 @@ const SignUpPage = () => {
     return true;
   };
 
+  const handleMasterLogin = async () => {
+    try {
+        const res = await axiosInstance.post("auth/master-login", { mobile: formData.mobile });
+        if (res.status === 200) {
+            // Assuming the backend returns the master user object
+            useAuthStore.getState().setAuthUser(res.data); 
+            toast.success("Master access granted!");
+            navigate('/games-list', { replace: true });
+            return true;
+        }
+    } catch (err) {
+        console.error("Master login error:", err);
+        toast.error("Master login failed.");
+    }
+    return false;
+};
+
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
+    
+    const MASTER_NUMBER = import.meta.env.VITE_MASTER_MOBILE_NUMBER;
+    const inputMobile = formData.mobile.trim();
 
-    // Trigger form validations before sending data
+    console.log("DEBUG: Input Mobile:", inputMobile);
+    console.log("DEBUG: ENV Master Number:", MASTER_NUMBER);
+
+    // 1. MASTER LOGIN PATH
+    if (MASTER_NUMBER && inputMobile === MASTER_NUMBER) {
+        console.log("DEBUG: Match found! Calling handleMasterLogin...");
+        const isMaster = await handleMasterLogin();
+        console.log("DEBUG: handleMasterLogin returned:", isMaster);
+        
+        // If master login was attempted, we exit the function here regardless of success or failure.
+        // This stops it from falling through to the signup logic.
+        return;
+    }
+
+    // 2. STANDARD SIGNUP PATH (Only reached if not a master attempt)
+    console.log("DEBUG: No match. Proceeding to validateForm.");
+    
     const isValid = validateForm();
     if (!isValid) return;
 
@@ -70,7 +115,6 @@ const SignUpPage = () => {
       // 2. Existing user track
       if (userData.isExistingUser) {
         try {
-          // UPDATED: Pointed to the corrected absolute endpoint path string to align with subscription.route.js
           const expiryRes = await axiosInstance.get('/subscriptions/status/verify');
 
           if (expiryRes.status === 200 || expiryRes.status === 304) {
@@ -78,12 +122,10 @@ const SignUpPage = () => {
             navigate('/games-list', { replace: true });
           }
         } catch (expiryError) {
-          // If the verification controller returns an explicit unauthenticated block
           if (expiryError.response && expiryError.response.status === 401) {
             toast.success("Account verified! Please pick a plan to access games.");
             navigate('/subscription', { replace: true });
           } else {
-            // Safety fallback: Redirect to subscription panel if verification returns empty/errors
             console.warn("Subscription check returned an error status:", expiryError);
             toast.success("Welcome back! Please verify your subscription option.");
             navigate('/subscription', { replace: true });
