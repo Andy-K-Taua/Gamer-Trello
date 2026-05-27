@@ -10,15 +10,9 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 
 ## Future Improvements
 
-1. Add more games
-2. Advertisement/Marketing Plugin
-3. Payment Gateway
-4. 2FA, waiting turns into, enter 4 digit code sent to mobile
-5. Multiplayer using browser or bluetooth connection 
-
-
-
-
+1. Advertisement/Marketing Plugin
+2. 2FA, waiting turns into, enter 4 digit code sent to mobile
+3. Multiplayer using browser or bluetooth connection 
 
 ## Installation and Setup
 
