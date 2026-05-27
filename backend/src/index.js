@@ -1,5 +1,9 @@
-import express from "express";
+// backend/src/index.js
+
 import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
 import cookieParser from "cookie-parser";
 import fs from 'fs';
 import cors from "cors";
@@ -13,7 +17,9 @@ import subscriptionRoutes from "../routes/subscription.route.js";
 import gamesRoute from '../routes/games.route.js';
 import { webhookHandler } from "../controllers/webhook.controller.js";
 
-dotenv.config();
+
+console.log("DEBUG: Checking Stripe Secret Key:", process.env.STRIPE_SECRET_KEY ? "FOUND" : "MISSING");
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

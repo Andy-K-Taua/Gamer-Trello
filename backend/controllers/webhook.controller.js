@@ -1,12 +1,13 @@
 // backend/controllers/webhook.controller.js
 
-import { stripe, STRIPE_WEBHOOK_SECRET } from "../lib/stripe.js";
+import { getStripe } from "../lib/stripe.js";
 import User from "../models/user.model.js";
 
 // Simple in-memory cache for idempotency (Note: Use Redis in production)
 const processedEvents = new Set();
 
 export const webhookHandler = async (req, res) => {
+    const stripe = getStripe();
     console.log("Headers received:", req.headers);
     let event;
 
