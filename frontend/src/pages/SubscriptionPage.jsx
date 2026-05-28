@@ -28,6 +28,15 @@ const SubscriptionPage = () => {
   const pollingRef = useRef(null);
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    if (queryParams.get('payment') === 'success') {
+      setShowPendingModal(true);
+      startApprovalPolling();
+      setIsPaymentConfirmed(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const getUserId = async () => {
       try {
         const response = await axiosInstance.get('/auth/check');
@@ -54,7 +63,7 @@ const SubscriptionPage = () => {
 
   useEffect(() => {
     // If the user has paid but is still pending approval, show them they are in the queue
-    const checkPaymentStatus = async () => {
+  const checkPaymentStatus = async () => {
       const res = await axiosInstance.get('/auth/check');
       if (res.data.authUser.hasPaid && res.data.authUser.approvalStatus === 'pending') {
         setShowPendingModal(true);

@@ -52,7 +52,7 @@ export const createCheckoutSession = async (req, res) => {
   ],
   mode: 'subscription',
   // Use process.env.CLIENT_URL
-  success_url: `${process.env.CLIENT_URL}/subscription?session_id={CHECKOUT_SESSION_ID}`,
+  success_url: `${process.env.CLIENT_URL}/subscription?payment=success`,
   cancel_url: `${process.env.CLIENT_URL}/subscription`,
   metadata: {
     userId: req.user._id.toString(),
