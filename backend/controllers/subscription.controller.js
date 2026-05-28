@@ -38,27 +38,26 @@ export const createCheckoutSession = async (req, res) => {
   try {
     const { plan } = req.body;
 
-    // Make sure you replace these with your actual IDs from the Stripe Dashboard
     const priceMap = {
       standard: 'price_1TbXImGuR5zwChHMxqdxR6JA',
       premium: 'price_1TbWgVGuR5zwChHMxySDXI15'
     };
 
     const session = await stripe.checkout.sessions.create({
-      // line_items must be an ARRAY []
-      line_items: [
-        {
-          price: priceMap[plan],
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: 'http://localhost:5173/subscription',
-      cancel_url: 'http://localhost:5173/subscription',
-      metadata: {
-        userId: req.user._id.toString(),
-      },
-    });
+  line_items: [
+    {
+      price: priceMap[plan],
+      quantity: 1,
+    },
+  ],
+  mode: 'subscription',
+  // Use process.env.CLIENT_URL
+  success_url: `${process.env.CLIENT_URL}/subscription?session_id={CHECKOUT_SESSION_ID}`,
+  cancel_url: `${process.env.CLIENT_URL}/subscription`,
+  metadata: {
+    userId: req.user._id.toString(),
+  },
+});
 
     res.status(200).json({ url: session.url });
   } catch (error) {
