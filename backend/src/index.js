@@ -74,15 +74,15 @@ app.get('/test', (req, res) => {
 // 4. Static Client Assets Middleware
 app.use(express.static(frontendBuildPath));
 
-// 5. Catch-all fallback router for Single Page App routing
-// app.use acts as a broad structural fallback, completely avoiding string-parsing regex bugs!
-app.use((req, res) => {
-  // Safe escape valve: If they are requesting an API endpoint that doesn't exist, don't serve HTML
+// 5. Catch-all fallback - Use 'app.get' specifically
+app.get('*', (req, res, next) => {
+  // If the path starts with /api, we already know the route doesn't exist
+  // because it didn't match the routes defined above.
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
   }
   
-  // Serve your SPA entry point for all front-end routing requests
+  // Otherwise, serve the SPA
   res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
 
