@@ -1,42 +1,29 @@
-// backend/routes/subscription.route.js
-
 import express from 'express';
-import subscriptionController from '../controllers/subscription.controller.js';
+import * as subController from '../controllers/subscription.controller.js';
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { checkSubscriptionExpiryStatus } from "../middleware/subscription.middleware.js";
-import { createCheckoutSession } from '../controllers/subscription.controller.js';
-import { webhookHandler } from "../controllers/webhook.controller.js";
 
 const router = express.Router();
 
-router.post("/webhook", webhookHandler);
+// 1. Webhook
+router.post("/webhook", subController.webhookHandler);
 
-router.post('/create-checkout-session', protectRoute, createCheckoutSession);
+// 2. Checkout
+router.post('/create-checkout-session', protectRoute, subController.createCheckoutSession);
 
-// 1. SELECT SUBSCRIPTION PLAN (New route for the approval flow)
-// This must be protected so we know exactly which user is choosing the plan
-router.post('/select-plan', protectRoute, subscriptionController.selectPlan);
+// 3. Plan Selection
+router.post('/select-plan', protectRoute, subController.selectPlan);
 
-// 2. ISOLATED SUBSCRIPTION VERIFICATION
-// This uses a concrete namespace prefix to avoid colliding with variable ID paths below
+// 4. Status Verification
 router.get("/status/verify", protectRoute, checkSubscriptionExpiryStatus, (req, res) => {
     return res.status(200).json({ status: "active", message: "Subscription is active" });
 });
 
-// --- Standard Subscription CRUD Routes ---
-// Create a new subscription
-router.post('/', subscriptionController.createSubscription);
-
-// Get all subscriptions
-router.get('/', subscriptionController.getAllSubscriptions);
-
-// Get a specific subscription by ID (Dynamic strings like ':id' fall safely below absolute segments)
-router.get('/:id', subscriptionController.getSubscriptionById);
-
-// Update a subscription
-router.patch('/:id', subscriptionController.updateSubscription);
-
-// Cancel a subscription
-router.delete('/:id', subscriptionController.cancelSubscription);
+// 5. CRUD Operations
+router.post('/', subController.createSubscription);
+router.get('/', subController.getAllSubscriptions);
+router.get('/:id', subController.getSubscriptionById);
+router.patch('/:id', subController.updateSubscription);
+router.delete('/:id', subController.cancelSubscription);
 
 export default router;
