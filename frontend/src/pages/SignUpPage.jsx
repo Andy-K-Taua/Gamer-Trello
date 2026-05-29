@@ -60,44 +60,38 @@ const SignUpPage = () => {
 
   const handleMasterLogin = async () => {
     try {
-        const res = await axiosInstance.post("auth/master-login", { mobile: formData.mobile });
-        if (res.status === 200) {
-            // Assuming the backend returns the master user object
-            useAuthStore.getState().setAuthUser(res.data); 
-            toast.success("Master access granted!");
-            navigate('/games-list', { replace: true });
-            return true;
-        }
+      const res = await axiosInstance.post("auth/master-login", { mobile: formData.mobile });
+      if (res.status === 200) {
+        // Assuming the backend returns the master user object
+        useAuthStore.getState().setAuthUser(res.data);
+        toast.success("Master access granted!");
+        navigate('/games-list', { replace: true });
+        return true;
+      }
     } catch (err) {
-        console.error("Master login error:", err);
-        toast.error("Master login failed.");
+      console.error("Master login error:", err);
+      toast.error("Master login failed.");
     }
     return false;
-};
+  };
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    
+
     const MASTER_NUMBER = import.meta.env.VITE_MASTER_MOBILE_NUMBER;
     const inputMobile = formData.mobile.trim();
 
-    console.log("DEBUG: Input Mobile:", inputMobile);
-    console.log("DEBUG: ENV Master Number:", MASTER_NUMBER);
-
     // 1. MASTER LOGIN PATH
     if (MASTER_NUMBER && inputMobile === MASTER_NUMBER) {
-        console.log("DEBUG: Match found! Calling handleMasterLogin...");
-        const isMaster = await handleMasterLogin();
-        console.log("DEBUG: handleMasterLogin returned:", isMaster);
-        
-        // If master login was attempted, we exit the function here regardless of success or failure.
-        // This stops it from falling through to the signup logic.
-        return;
+
+      const isMaster = await handleMasterLogin();
+
+      // This stops it from falling through to the signup logic.
+      return;
     }
 
     // 2. STANDARD SIGNUP PATH (Only reached if not a master attempt)
-    console.log("DEBUG: No match. Proceeding to validateForm.");
-    
+
     const isValid = validateForm();
     if (!isValid) return;
 
