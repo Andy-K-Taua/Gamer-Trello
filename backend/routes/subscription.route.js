@@ -1,12 +1,13 @@
 import express from 'express';
-import * as subController from '../controllers/subscription.controller.js';
+import subController from '../controllers/subscription.controller.js';
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { checkSubscriptionExpiryStatus } from "../middleware/subscription.middleware.js";
+import { webhookHandler } from "../controllers/webhook.controller.js";
 
 const router = express.Router();
 
 // 1. Webhook
-router.post("/webhook", subController.webhookHandler);
+router.post("/webhook", webhookHandler);
 
 // 2. Checkout
 router.post('/create-checkout-session', protectRoute, subController.createCheckoutSession);
