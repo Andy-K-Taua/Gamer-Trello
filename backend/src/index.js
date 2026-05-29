@@ -80,14 +80,11 @@ app.get('/test', (req, res) => {
 app.use(express.static(frontendBuildPath));
 
 // 5. Catch-all fallback - Use 'app.get' specifically
-app.get('*', (req, res, next) => {
-  // If the path starts with /api, we already know the route doesn't exist
-  // because it didn't match the routes defined above.
+app.get('/*splat', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
   }
   
-  // Otherwise, serve the SPA
   res.sendFile(path.join(frontendBuildPath, 'index.html'));
 });
 
