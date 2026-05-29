@@ -62,6 +62,11 @@ app.use(cors({
   credentials: true
 }));
 
+app.use((req, res, next) => {
+  console.log(`[DEBUG] Incoming Request: ${req.method} ${req.path}`);
+  next();
+});
+
 // 3. API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
