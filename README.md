@@ -11,9 +11,10 @@ A responsive mobile designed console (UI/UX) for any phone or device. Login/Crea
 ## Future Improvements
 
 1. Advertisement/Marketing Plugin
-2. 2FA, waiting turns into, enter 4 digit code sent to mobile
-3. Multiplayer using browser or bluetooth connection 
-4. Agentic Architectual Orchestration
+2. 2FA - Twillio
+3. webRTC (General Opp) + WebSocket (Handshake) - Multiplayer
+4. Leader Board
+5. Agentic Architectual Orchestration 
 
 ## Installation and Setup
 
