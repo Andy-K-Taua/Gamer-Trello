@@ -25,3 +25,5 @@ backend/snapshot_backend.py
 # Javascript helper scripts
 backend/approveUsers.js
 backend/wipeUsers.js
+backend/createMaster.js
+backend/fixMaster.js
