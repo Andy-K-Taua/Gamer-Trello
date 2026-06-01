@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from 'react-hot-toast';
+import { io } from "socket.io-client";
 
 const handleError = (error, functionName) => {
     if (error.response && error.response.data && error.response.data.message) {
@@ -19,10 +20,14 @@ export const useAuthStore = create((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
-
+    socket: null,
+    onlineUsers: [],
     isCheckingAuth: true,
+    isConnecting: false,
 
-    setAuthUser: (user) => set({ authUser: user }),
+    setAuthUser: (user) => set((state) => ({
+        authUser: { ...state.authUser, ...user }
+    })),
 
     checkAuth: async () => {
         try {
@@ -31,11 +36,13 @@ export const useAuthStore = create((set, get) => ({
             const res = await axiosInstance.get("/auth/check");
 
             console.log("Authentication successful. User data:", res.data);
-            set({ authUser: res.data });
+            const user = res.data.authUser || res.data;
+            set({ authUser: user });
+            get().connectSocket();
         } catch (error) {
             console.log("Error in checkAuth:", error);
             set({ authUser: null });
-            
+
             // ONLY throw a toast if it's NOT a normal 401 unauthenticated status
             if (error.response?.status !== 401) {
                 handleError(error, 'checkAuth');
@@ -57,14 +64,14 @@ export const useAuthStore = create((set, get) => ({
             console.log(`Signup request took ${duration}ms to complete`);
             console.log("API request successful:", res);
             set({ authUser: res.data });
-            return res; 
+            return res;
         } catch (error) {
             const endTime = new Date().getTime();
             const duration = endTime - startTime;
             console.log(`Signup request failed after ${duration}ms`);
             console.error("Error making API request uce:", error);
             handleError(error, 'signup');
-            throw error; 
+            throw error;
         } finally {
             set({ isSigningUp: false });
         }
@@ -99,7 +106,7 @@ export const useAuthStore = create((set, get) => ({
         } finally {
             set({ isLoggingIn: false });
         }
-    },    
+    },
 
     logout: async () => {
         try {
@@ -113,4 +120,40 @@ export const useAuthStore = create((set, get) => ({
             handleError(error, 'logout');
         }
     },
+
+    // 4. Implement connectSocket
+    connectSocket: () => {
+        const { authUser, socket, isConnecting } = get();
+
+        if (!authUser || (socket && socket.connected) || isConnecting) return;
+
+        set({ isConnecting: true });
+
+        const socketInstance = io("http://localhost:5001", {
+            query: { userId: authUser._id },
+        });
+
+        // CRITICAL: Register the listener IMMEDIATELY on the instance
+        socketInstance.on("getOnlineUsers", (userIds) => {
+            console.log("DEBUG: Leaderboard update received:", userIds);
+            set({ onlineUsers: userIds });
+        });
+
+        socketInstance.on("connect", () => {
+            console.log("Socket connected successfully!");
+            set({ socket: socketInstance, isConnecting: false });
+        });
+    },
+
+    // 5. Implement disconnectSocket
+    disconnectSocket: () => {
+        const { socket } = get();
+        if (socket?.connected) {
+            socket.disconnect();
+            set({ socket: null, onlineUsers: [] });
+        }
+    },
+
 }));
+
+window.useAuthStore = useAuthStore;

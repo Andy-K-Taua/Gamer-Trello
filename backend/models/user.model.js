@@ -1,3 +1,5 @@
+// backend/models/user.models.js
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -19,18 +21,32 @@ const userSchema = new mongoose.Schema(
     },
     subscriptionPlan: {
       type: String,
-      default: "none", // Will be updated when they pick a tier
+      default: "none",
     },
     approvalStatus: {
       type: String,
       enum: ["pending", "approved", "rejected"],
-      default: "pending", // All new signups start here
+      default: "pending",
     },
     hasPaid: { 
-    type: Boolean, 
-    default: false 
-  },
-  stripeCustomerId: String,
+      type: Boolean, 
+      default: false 
+    },
+    stripeCustomerId: String,
+    
+    // --- New Profile Fields ---
+    fullName: {
+      type: String,
+      default: "",
+    },
+    profilePic: {
+      type: String,
+      default: "",
+    },
+    role: {
+      type: String,
+      default: "user", // Default role
+    },
   },
   { timestamps: true }
 );

@@ -1,7 +1,7 @@
 // frontend/src/pages/GamesListPage.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Fixed: Removed duplicate import
 import { axiosInstance } from '../lib/axios';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -20,13 +20,11 @@ const GamesListPage = () => {
 
       try {
         console.log('Verifying subscription access...');
-        // Points to the isolated verification path
         await axiosInstance.get('/subscriptions/status/verify');
         
         console.log('Access granted. Fetching games...');
         const response = await axiosInstance.get('/games');
         
-        // Filter out system metadata files like .DS_Store before saving to state
         const gamesList = response.data
           .filter((game) => game.name !== '.DS_Store' && game.id !== '.DS_Store')
           .map((game) => ({
@@ -40,16 +38,12 @@ const GamesListPage = () => {
         
       } catch (error) {
         console.error("Authorization check failed:", error);
-        
         const status = error.response?.status;
-        
-        // STOPS THE LOOP: Only redirect if it's an explicit 401 subscription wall
         if (status === 401) {
           redirectingRef.current = true;
           toast.error("An active subscription plan is required to access games.");
           navigate('/subscription', { replace: true });
         } else {
-          // If the server has a 500 error, halt safely here instead of bouncing!
           toast.error("Server synchronization error. Please try again later.");
           setIsVerifying(false);
         }
@@ -78,30 +72,34 @@ const GamesListPage = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
-      {/* Search Bar Wrapper */}
-      <div className="flex justify-center mb-4 mx-auto max-w-2xl w-full rounded-lg">
+      {/* Search Bar and Leaderboard Button Wrapper */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8 mx-auto max-w-2xl w-full">
         <input
           type="text"
           placeholder="Type Game Title Here..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="input input-bordered w-full mb-4 rounded-[20px]"
+          className="input input-bordered w-full rounded-[20px]"
         />
+        <button 
+          onClick={() => navigate("/leaderboard")} 
+          className="btn btn-primary rounded-[20px] whitespace-nowrap"
+        >
+          View Leaderboard
+        </button>
       </div>
 
-      {/* Empty State Presentation */}
       {filteredGames.length === 0 ? (
         <div className="text-center py-12 bg-base-100 rounded-xl border border-base-300 max-w-2xl mx-auto shadow-sm">
           <p className="text-lg font-medium text-base-content/60">No games match your search criteria.</p>
           <button 
             onClick={() => setSearchQuery('')} 
-            className="btn btn-success btn-sm mt-4 text-white rounded-full px-6 normal-case"
+            className="btn btn-success btn-sm mt-4 text-white rounded-full px-6"
           >
             Clear Search
           </button>
         </div>
       ) : (
-        /* Games Grid Container */
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
           {filteredGames.map((game) => (
             <div
@@ -115,8 +113,8 @@ const GamesListPage = () => {
                   alt={game.name} 
                   className="object-cover h-48 w-full" 
                   onError={(e) => {
-                    e.target.onerror = null; // Prevents infinite loop if fallback image also fails
-                    e.target.src = '/images/fallback-placeholder.png'; // Graceful placeholder UI asset
+                    e.target.onerror = null; 
+                    e.target.src = '/images/fallback-placeholder.png'; 
                   }}
                 />
               </figure>

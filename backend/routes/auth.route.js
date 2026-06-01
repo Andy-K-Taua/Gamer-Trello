@@ -5,6 +5,7 @@ console.log("--- AUTH ROUTES FILE LOADED ---");
 import express from "express";
 import { checkAuth, subscribe, logout, signup, masterLogin } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import { updateProfile } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.post("/subscribe", subscribe);
 router.post("/logout", logout);
 router.get("/check", protectRoute, checkAuth);
 router.post("/master-login", masterLogin);
+router.put("/update-profile", protectRoute, updateProfile);
 
 export default router;

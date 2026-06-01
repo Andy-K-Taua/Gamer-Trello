@@ -7,6 +7,7 @@ import SubscriptionPage from '../pages/SubscriptionPage';
 import GamesListPage from '../pages/GamesListPage';
 import GamePadPage from '../pages/GamePadPage';
 import { useLocation } from 'react-router-dom';
+import LeaderboardPage from "../pages/LeaderboardPage";
 
 const ProtectedRoutes = () => {
     const location = useLocation();
@@ -15,6 +16,7 @@ const ProtectedRoutes = () => {
         <AuthCheck>
             <Routes>
                 <Route path="/subscription" element={<SubscriptionPage />} />
+                <Route path="/leaderboard" element={<LeaderboardPage />} />
                 <Route path="/games-list" element={<GamesListPage />} />
                 <Route path="game-pad/:gameName" element={<GamePadPage />} />
                 <Route path="*" element={<div>Route not found in ProtectedRoutes</div>} />

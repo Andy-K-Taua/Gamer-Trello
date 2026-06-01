@@ -139,3 +139,26 @@ export const masterLogin = async (req, res) => {
 
     res.status(401).json({ message: "Invalid credentials" });
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic, fullName } = req.body;
+    const userId = req.user._id;
+
+    // Use { new: true } to return the document AFTER the update is applied
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic, fullName },
+      { new: true } 
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log("Error in update profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
