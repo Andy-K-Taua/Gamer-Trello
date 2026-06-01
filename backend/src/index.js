@@ -140,12 +140,5 @@ const startServer = async () => {
   }
 };
 
-app.get('/debug-routes', (req, res) => {
-  const routes = app._router.stack
-    .filter(r => r.route)
-    .map(r => r.route.path);
-  res.json(routes);
-});
-
 startServer();
 

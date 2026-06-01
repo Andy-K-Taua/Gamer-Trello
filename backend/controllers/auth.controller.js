@@ -122,7 +122,7 @@ export const masterLogin = async (req, res) => {
     // console.log("DEBUG: Env variable:", process.env.VITE_MASTER_MOBILE_NUMBER);
 
     // Compare against the server's environment variable
-    if (mobile === process.env.VITE_MASTER_MOBILE_NUMBER) {
+    if (mobile === process.env.MASTER_MOBILE_NUMBER) {
         const user = await User.findOne({ mobile: mobile });
 
         console.log("DEBUG: User found in DB:", !!user);
@@ -141,24 +141,24 @@ export const masterLogin = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  try {
-    const { profilePic, fullName } = req.body;
-    const userId = req.user._id;
+    try {
+        const { profilePic, fullName } = req.body;
+        const userId = req.user._id;
 
-    // Use { new: true } to return the document AFTER the update is applied
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profilePic, fullName },
-      { new: true } 
-    );
+        // Use { new: true } to return the document AFTER the update is applied
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic, fullName },
+            { new: true }
+        );
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.log("Error in update profile:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    console.log("Error in update profile:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 };
