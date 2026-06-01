@@ -24,10 +24,11 @@ const LeaderboardPage = () => {
     reader.readAsDataURL(file);
     reader.onload = async () => {
       try {
-        const res = await axiosInstance.put("/auth/update-profile", { profilePic: reader.result });
-        
-        // ADD THIS LOG RIGHT HERE:
-        console.log("SERVER RETURNED THIS USER OBJECT:", res.data);
+        // Send BOTH current fullName and new profilePic
+        const res = await axiosInstance.put("/auth/update-profile", { 
+            profilePic: reader.result,
+            fullName: authUser.fullName 
+        });
         
         setAuthUser(res.data);
         toast.success("Photo updated!");
@@ -39,7 +40,12 @@ const LeaderboardPage = () => {
 
   const handleSaveName = async () => {
     try {
-      const res = await axiosInstance.put("/auth/update-profile", { fullName: tempName });
+      // Send BOTH current profilePic and new fullName
+      const res = await axiosInstance.put("/auth/update-profile", { 
+          fullName: tempName,
+          profilePic: authUser.profilePic 
+      });
+      
       setAuthUser(res.data);
       setIsEditingName(false);
       toast.success("Name updated!");

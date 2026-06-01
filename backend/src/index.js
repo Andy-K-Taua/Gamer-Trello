@@ -125,9 +125,27 @@ io.on("connection", (socket) => {
   });
 });
 
-// 3. NOW you can call server.listen
-server.listen(PORT, HOST, () => {
-  console.log(`Server is running on ${HOST}:${PORT}`);
-  connectDB();
+const startServer = async () => {
+  try {
+    console.log("Connecting to database...");
+    await connectDB(); // Wait for the DB to connect
+    console.log("Database connected successfully.");
+    
+    server.listen(PORT, HOST, () => {
+      console.log(`Server is running on ${HOST}:${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1); // Kill the process if we can't connect to the DB
+  }
+};
+
+app.get('/debug-routes', (req, res) => {
+  const routes = app._router.stack
+    .filter(r => r.route)
+    .map(r => r.route.path);
+  res.json(routes);
 });
+
+startServer();
 
