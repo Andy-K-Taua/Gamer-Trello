@@ -34,8 +34,8 @@ export const getGames = async (req, res) => {
       }
     }
 
-    console.log('=== TARGET PATH CONFIGURATION RESOLVED ===');
-    console.log('Searching inside directory:', gamesDir);
+    // console.log('=== TARGET PATH CONFIGURATION RESOLVED ===');
+    // console.log('Searching inside directory:', gamesDir);
 
     // 3. Read the directory files safely
     let files = [];
@@ -55,7 +55,7 @@ export const getGames = async (req, res) => {
         name: file.replace(/\.[^/.]+$/, ''), // Remove file extension (e.g. "Sonic.smc" -> "Sonic")
       }));
 
-    console.log('Sending game list payload:', games);
+    // console.log('Sending game list payload:', games);
     return res.json(games);
 
   } catch (err) {

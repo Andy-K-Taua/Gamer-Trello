@@ -129,7 +129,12 @@ export const useAuthStore = create((set, get) => ({
 
         set({ isConnecting: true });
 
-        const socketInstance = io("http://localhost:5001", {
+        // Use the deployed URL in production, localhost for development
+        const BASE_URL = import.meta.env.MODE === "production"
+            ? "https://gamer-trello.onrender.com"
+            : "http://localhost:5001";
+
+        const socketInstance = io(BASE_URL, {
             query: { userId: authUser._id },
         });
 

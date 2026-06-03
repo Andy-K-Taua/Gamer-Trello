@@ -107,8 +107,15 @@ export const subscribe = async (req, res) => {
 // 4. CHECK AUTH CONTROLLER
 export const checkAuth = async (req, res) => {
     try {
-        // req.user is supplied dynamically from protectRoute middleware
-        res.status(200).json({ authUser: req.user });
+        // Instead of trusting req.user (the JWT snapshot),
+        // fetch the latest version of this user from the DB
+        const freshUser = await User.findById(req.user._id).select("-password");
+
+        if (!freshUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ authUser: freshUser });
     } catch (error) {
         console.log("Error in checkAuth controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
@@ -117,13 +124,26 @@ export const checkAuth = async (req, res) => {
 
 export const masterLogin = async (req, res) => {
     const { mobile } = req.body;
+    console.log("DEBUG: Querying DB for mobile:", `"${mobile}"`);
+
+    // 1. Try finding by the EXACT ID we know exists
+    const testUser = await User.findById("6a1bb0cb56c10c83c76b1fe7");
+    console.log("DEBUG: Can we find user by ID?", !!testUser);
+
+    // 2. Try finding by mobile with a case-insensitive regex
+    const user = await User.findOne({ mobile: { $regex: new RegExp("^" + mobile.trim() + "$", "i") } });
+    console.log("DEBUG: User found by Regex mobile match?", !!user);
+
+    if (!user) {
+        return res.status(404).json({ message: "Master account not found" });
+    }
 
     // console.log("DEBUG: Attempting master login for mobile:", mobile);
     // console.log("DEBUG: Env variable:", process.env.VITE_MASTER_MOBILE_NUMBER);
 
     // Compare against the server's environment variable
     if (mobile === process.env.MASTER_MOBILE_NUMBER) {
-        const user = await User.findOne({ mobile: mobile });
+        const user = await User.findOne({ mobile: String(mobile).trim() });
 
         console.log("DEBUG: User found in DB:", !!user);
 
@@ -133,7 +153,7 @@ export const masterLogin = async (req, res) => {
 
         return res.status(200).json({
             message: "Master access granted",
-            user: { _id: user._id, name: user.name, role: user.role }
+            user: user
         });
     }
 

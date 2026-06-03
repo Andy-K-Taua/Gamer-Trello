@@ -36,7 +36,7 @@ fs.readdir(frontendBuildPath, (err, files) => {
   if (err) {
     console.error('Error reading dist folder:', err);
   } else {
-    console.log('Files in dist folder:', files);
+    // console.log('Files in dist folder:', files);
   }
 });
 
