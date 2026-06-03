@@ -25,11 +25,11 @@ const LeaderboardPage = () => {
     reader.onload = async () => {
       try {
         // Send BOTH current fullName and new profilePic
-        const res = await axiosInstance.put("/auth/update-profile", { 
-            profilePic: reader.result,
-            fullName: authUser.fullName 
+        const res = await axiosInstance.put("/auth/update-profile", {
+          profilePic: reader.result,
+          fullName: authUser.fullName
         });
-        
+
         setAuthUser(res.data);
         toast.success("Photo updated!");
       } catch (error) {
@@ -41,11 +41,11 @@ const LeaderboardPage = () => {
   const handleSaveName = async () => {
     try {
       // Send BOTH current profilePic and new fullName
-      const res = await axiosInstance.put("/auth/update-profile", { 
-          fullName: tempName,
-          profilePic: authUser.profilePic 
+      const res = await axiosInstance.put("/auth/update-profile", {
+        fullName: tempName,
+        profilePic: authUser.profilePic
       });
-      
+
       setAuthUser(res.data);
       setIsEditingName(false);
       toast.success("Name updated!");
@@ -67,48 +67,52 @@ const LeaderboardPage = () => {
           {onlineUsers.map((userId) => {
             const isMe = userId === authUser?._id;
             return (
-              <li key={userId} className="flex items-center gap-3 p-3 bg-base-100 rounded-lg shadow-sm">
+              <li key={userId} className="flex items-center gap-4 p-4 bg-base-100 rounded-xl shadow-sm">
                 <div className="relative">
+                  {/* Increased w/h to 12 (48px) for better touch accessibility */}
                   <div
-                    className={`w-10 h-10 rounded-full border-2 border-base-300 flex items-center justify-center bg-base-200 overflow-hidden ${isMe ? 'cursor-pointer hover:opacity-80' : ''}`}
+                    className={`w-12 h-12 rounded-full border-2 border-base-300 flex items-center justify-center bg-base-200 overflow-hidden touch-manipulation ${isMe ? 'cursor-pointer active:scale-95 transition-transform' : ''}`}
                     onClick={isMe ? () => fileInputRef.current.click() : undefined}
                   >
-                    {/* THIS IS WHERE THE MAGIC HAPPENS */}
                     {isMe && authUser?.profilePic ? (
                       <img
                         src={authUser.profilePic}
                         className="w-full h-full object-cover"
                         alt="Profile"
-                        key={authUser.profilePic} // Adding key forces a re-render if the URL changes
+                        key={authUser.profilePic}
                       />
                     ) : (
-                      <Camera className="w-5 h-5 text-gray-400" />
+                      // Increased icon size for better visibility
+                      <Camera className="w-6 h-6 text-gray-400" />
                     )}
                   </div>
-                  <div className="absolute -top-1 -right-1 flex h-3 w-3">
+                  {/* Status indicator */}
+                  <div className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
                   </div>
                 </div>
 
                 <div className="flex-1">
                   {isMe && isEditingName ? (
                     <div className="flex items-center gap-2">
+                      {/* Changed to input-sm for better touch target */}
                       <input
-                        className="input input-xs input-bordered w-full max-w-37.5"
+                        className="input input-sm input-bordered w-full"
                         value={tempName}
                         onChange={(e) => setTempName(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                        autoFocus
                       />
-                      <button onClick={handleSaveName} className="btn btn-ghost btn-xs text-success"><Check size={16} /></button>
-                      <button onClick={() => setIsEditingName(false)} className="btn btn-ghost btn-xs text-error"><X size={16} /></button>
+                      <button onClick={handleSaveName} className="btn btn-ghost btn-sm text-success p-1"><Check size={20} /></button>
+                      <button onClick={() => setIsEditingName(false)} className="btn btn-ghost btn-sm text-error p-1"><X size={20} /></button>
                     </div>
                   ) : (
                     <span
-                      className={`font-medium ${isMe ? 'cursor-pointer hover:text-primary' : ''}`}
+                      className={`font-semibold text-base py-2 block ${isMe ? 'cursor-pointer hover:text-primary active:text-primary' : ''}`}
                       onClick={() => isMe && setIsEditingName(true)}
                     >
-                      {isMe ? (authUser?.fullName || "Click to set name") : `User: ${userId.slice(-6)}`}
+                      {isMe ? (authUser?.fullName || "Tap to set name") : `User: ${userId.slice(-6)}`}
                     </span>
                   )}
                 </div>
