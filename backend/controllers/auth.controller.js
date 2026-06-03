@@ -176,6 +176,14 @@ export const updateProfile = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // --- NEW: Emit the update to all connected clients ---
+        // Ensure that your app.set("io", io) was called in your server entry file (e.g., server.js)
+        const io = req.app.get("io");
+        if (io) {
+            io.emit("userUpdated", updatedUser);
+        }
+        // ----------------------------------------------------
+
         res.status(200).json(updatedUser);
     } catch (error) {
         console.log("Error in update profile:", error);
