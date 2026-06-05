@@ -117,10 +117,6 @@ io.on("connection", (socket) => {
     userSocketMap.set(userId, socket.id);
     console.log(`User connected: ${userId}`);
 
-<<<<<<< HEAD
-   
-=======
->>>>>>> ef5e00e9a3e5adc56781fae4381b63dd2ea23606
     io.emit("getOnlineUsers", Array.from(userSocketMap.keys()));
   }
 
