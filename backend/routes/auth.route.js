@@ -6,6 +6,7 @@ import express from "express";
 import { checkAuth, subscribe, logout, signup, masterLogin } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { updateProfile } from "../controllers/auth.controller.js";
+import { getPublicProfile } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.post("/logout", logout);
 router.get("/check", protectRoute, checkAuth);
 router.post("/master-login", masterLogin);
 router.put("/update-profile", protectRoute, updateProfile);
+router.get("/profile/:id", protectRoute, getPublicProfile);
 
 export default router;

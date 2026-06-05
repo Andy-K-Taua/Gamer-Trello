@@ -24,6 +24,7 @@ export const useAuthStore = create((set, get) => ({
     onlineUsers: [],
     isCheckingAuth: true,
     isConnecting: false,
+    usersCache: {},
 
     setAuthUser: (user) => set((state) => ({
         authUser: { ...state.authUser, ...user }
@@ -121,7 +122,7 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    // 4. Implement connectSocket
+    // Implement connectSocket
     connectSocket: () => {
         const { authUser, socket, isConnecting } = get();
 
@@ -150,13 +151,22 @@ export const useAuthStore = create((set, get) => ({
         });
     },
 
-    // 5. Implement disconnectSocket
+    // Implement disconnectSocket
     disconnectSocket: () => {
         const { socket } = get();
         if (socket?.connected) {
             socket.disconnect();
             set({ socket: null, onlineUsers: [] });
         }
+    },
+
+    updateUserCache: (userId, userData) => {
+        set((state) => ({
+            usersCache: {
+                ...state.usersCache,
+                [userId]: userData
+            }
+        }));
     },
 
 }));
