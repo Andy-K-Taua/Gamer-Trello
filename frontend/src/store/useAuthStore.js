@@ -134,6 +134,8 @@ export const useAuthStore = create((set, get) => ({
             ? "https://gamer-trello.onrender.com"
             : "http://localhost:5001";
 
+        console.log("DEBUG: Attempting to connect socket to:", BASE_URL);
+
         const socketInstance = io(BASE_URL, {
             query: { userId: authUser._id },
         });

@@ -117,10 +117,6 @@ io.on("connection", (socket) => {
     userSocketMap.set(userId, socket.id);
     console.log(`User connected: ${userId}`);
 
-<<<<<<< HEAD
-   
-=======
->>>>>>> ef5e00e9a3e5adc56781fae4381b63dd2ea23606
     io.emit("getOnlineUsers", Array.from(userSocketMap.keys()));
   }
 
@@ -128,6 +124,17 @@ io.on("connection", (socket) => {
     userSocketMap.delete(userId);
     io.emit("getOnlineUsers", Array.from(userSocketMap.keys()));
   });
+
+  socket.on("request-game", (data) => {
+    console.log("SERVER RECEIVED EVENT: request-game", data);
+      const targetSocketId = userSocketMap.get(data.to);
+      console.log(`DEBUG: Target ${data.to} found at ${targetSocketId}. Emitting now.`);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("game-request-received", { from: data.from });
+      } else {
+        console.log(`DEBUG: Target ${data.to} found at ${targetSocketId}. Emitting now.`);
+      }
+    });
 });
 
 const startServer = async () => {

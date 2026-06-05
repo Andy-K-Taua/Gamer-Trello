@@ -14,6 +14,7 @@ const LeaderboardPage = () => {
   const setAuthUser = useAuthStore((state) => state.setAuthUser);
   const usersCache = useAuthStore((state) => state.usersCache);
   const updateUserCache = useAuthStore((state) => state.updateUserCache);
+  const socket = useAuthStore((state) => state.socket);
 
   // Trigger: Fetch details for users currently online that aren't in cache
   useEffect(() => {
@@ -25,6 +26,32 @@ const LeaderboardPage = () => {
       }
     });
   }, [onlineUsers, usersCache, authUser?._id, updateUserCache]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("game-request-received", (data) => {
+      const senderName = usersCache[data.from]?.fullName || "A player";
+
+      toast((t) => (
+        <div className="flex items-center gap-2">
+          <span> Game invite from {senderName}</span>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => {
+              console.log("Accepted!");
+              toast.dismiss(t.id);
+              // Redirect or trigger game logic here
+            }}
+          >
+            Accept
+          </button>
+        </div>
+      ), { duration: Infinity });
+    });
+
+    return () => socket.off("game-request-received");
+  }, [socket, usersCache]);
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(authUser?.fullName || "");
@@ -56,6 +83,25 @@ const LeaderboardPage = () => {
       setIsEditingName(false);
       toast.success("Name updated!");
     } catch (error) { toast.error("Failed to update name"); }
+  };
+
+  const initiateGame = (targetUserId) => {
+    // 1. Check if socket exists and is actually connected
+    if (!socket || !socket.connected) {
+      console.error("Socket is disconnected or null!");
+      toast.error("Socket not connected. Please refresh.");
+      return;
+    }
+
+    console.log("Emitting request-game to:", targetUserId);
+
+    // 2. Emit the event
+    socket.emit("request-game", {
+      from: authUser._id,
+      to: targetUserId
+    });
+
+    toast.success("Game request sent!");
   };
 
   return (
@@ -108,6 +154,7 @@ const LeaderboardPage = () => {
                       />
                       <button onClick={handleSaveName} className="btn btn-ghost btn-sm text-success p-1"><Check size={20} /></button>
                       <button onClick={() => setIsEditingName(false)} className="btn btn-ghost btn-sm text-error p-1"><X size={20} /></button>
+
                     </div>
                   ) : (
                     <span
@@ -118,6 +165,15 @@ const LeaderboardPage = () => {
                     </span>
                   )}
                 </div>
+
+                {!isMe && (
+                  <button
+                    className="btn btn-primary btn-sm ml-auto"
+                    onClick={() => initiateGame(userId)}
+                  >
+                    Join
+                  </button>
+                )}
               </li>
             );
           })}
