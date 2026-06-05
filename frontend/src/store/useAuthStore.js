@@ -130,7 +130,6 @@ export const useAuthStore = create((set, get) => ({
 
         set({ isConnecting: true });
 
-        // Use the deployed URL in production, localhost for development
         const BASE_URL = import.meta.env.MODE === "production"
             ? "https://gamer-trello.onrender.com"
             : "http://localhost:5001";
@@ -139,10 +138,20 @@ export const useAuthStore = create((set, get) => ({
             query: { userId: authUser._id },
         });
 
-        // CRITICAL: Register the listener IMMEDIATELY on the instance
+        // 1. Existing listener for online users
         socketInstance.on("getOnlineUsers", (userIds) => {
             console.log("DEBUG: Leaderboard update received:", userIds);
             set({ onlineUsers: userIds });
+        });
+
+        // 2. NEW: Listener for profile updates
+        socketInstance.on("userUpdated", (updatedUser) => {
+            const { authUser } = get();
+            // If the update belongs to the logged-in user, update the store
+            if (authUser && authUser._id === updatedUser._id) {
+                console.log("DEBUG: Profile update received via socket");
+                set({ authUser: updatedUser });
+            }
         });
 
         socketInstance.on("connect", () => {

@@ -102,6 +102,8 @@ const io = new Server(server, {
   }
 });
 
+app.set("io", io);
+
 // 2. Setup your Socket logic
 const userSocketMap = new Map();
 
@@ -115,7 +117,10 @@ io.on("connection", (socket) => {
     userSocketMap.set(userId, socket.id);
     console.log(`User connected: ${userId}`);
 
+<<<<<<< HEAD
    
+=======
+>>>>>>> ef5e00e9a3e5adc56781fae4381b63dd2ea23606
     io.emit("getOnlineUsers", Array.from(userSocketMap.keys()));
   }
 
@@ -130,7 +135,7 @@ const startServer = async () => {
     console.log("Connecting to database...");
     await connectDB(); // Wait for the DB to connect
     console.log("Database connected successfully.");
-    
+
     server.listen(PORT, HOST, () => {
       console.log(`Server is running on ${HOST}:${PORT}`);
     });
