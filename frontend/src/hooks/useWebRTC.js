@@ -57,22 +57,29 @@ export const useWebRTC = (remoteUserId) => {
         // Listen for all signals via the unified channel
         const handleSignal = async ({ from, type, payload }) => {
             const pc = peerConnection.current;
+
+            console.log("DEBUG: Signaling state before process:", pc?.signalingState, "Type:", type);
+
+
             if (!pc) return;
+
+            console.log(`📥 Received ${type} from ${from}`);
 
             try {
                 if (type === "offer") {
-                    if (pc.signalingState !== "stable") return;
+                    // 1. Set Remote first
                     await pc.setRemoteDescription(new RTCSessionDescription(payload.offer));
+                    // 2. Then Create Answer
                     const answer = await pc.createAnswer();
+                    // 3. Then Set Local
                     await pc.setLocalDescription(answer);
+                    // 4. Then Emit
                     socket.emit("webrtc-signal", { to: from, type: "answer", payload: { answer } });
                 } else if (type === "answer") {
-                    if (pc.signalingState === "have-local-offer") {
-                        await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
-                    }
+                    await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
                 } else if (type === "ice") {
-                    // Add ICE candidates only if remote description is set
-                    if (pc.remoteDescription && pc.remoteDescription.type) {
+                    // Only add ICE if we have a remote description
+                    if (pc.remoteDescription) {
                         await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
                     }
                 }
@@ -83,19 +90,13 @@ export const useWebRTC = (remoteUserId) => {
 
         socket.on("webrtc-signal", handleSignal);
 
-        setIsReady(true);
+        setIsReady(true); // This will now run
 
         return () => {
-            socket.off("webrtc-signal", handleSignal); // Explicitly remove this specific listener
+            socket.off("webrtc-signal", handleSignal);
             pc.close();
         };
 
-        setIsReady(true); // Signal to UI that we are ready to connect
-
-        return () => {
-            socket.off("webrtc-signal");
-            pc.close();
-        };
     }, [socket, isSocketReady, remoteUserId, authUser?._id]);
 
     const createOffer = async () => {

@@ -10,12 +10,6 @@ import { getPublicProfile } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-// router.use((req, res, next) => {
-//     console.log(`DEBUG: Request received at: ${req.method} ${req.originalUrl}`);
-//     next();
-// });
-
-// Both paths route to your unified signup function, which safely branches under the hood
 router.post("/signup", signup);
 router.post("/login", signup); 
 router.post("/subscribe", subscribe);

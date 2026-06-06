@@ -15,6 +15,9 @@ const GamePadPage = () => {
 
   // Everything is handled by the hook now
   const { createOffer, isReady, remoteStream, addStream, peerConnection } = useWebRTC(opponentId);
+  window.debugPC = peerConnection;
+  console.log("WebRTC PeerConnection exists:", !!peerConnection?.current);
+
   // 1. Initiator: Create offer when ready
   useEffect(() => {
     if (role === 'initiator' && isReady) {
