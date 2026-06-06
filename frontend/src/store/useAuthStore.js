@@ -25,6 +25,7 @@ export const useAuthStore = create((set, get) => ({
     isCheckingAuth: true,
     isConnecting: false,
     usersCache: {},
+    isSocketReady: false,
 
     setAuthUser: (user) => set((state) => ({
         authUser: { ...state.authUser, ...user }
@@ -125,7 +126,6 @@ export const useAuthStore = create((set, get) => ({
     // Implement connectSocket
     connectSocket: () => {
         const { authUser, socket, isConnecting } = get();
-
         if (!authUser || (socket && socket.connected) || isConnecting) return;
 
         set({ isConnecting: true });
@@ -134,40 +134,30 @@ export const useAuthStore = create((set, get) => ({
             ? "https://gamer-trello.onrender.com"
             : "http://localhost:5001";
 
-        console.log("DEBUG: Attempting to connect socket to:", BASE_URL);
-
         const socketInstance = io(BASE_URL, {
             query: { userId: authUser._id },
         });
 
-        // 1. Existing listener for online users
-        socketInstance.on("getOnlineUsers", (userIds) => {
-            console.log("DEBUG: Leaderboard update received:", userIds);
-            set({ onlineUsers: userIds });
-        });
-
-        // 2. NEW: Listener for profile updates
-        socketInstance.on("userUpdated", (updatedUser) => {
-            const { authUser } = get();
-            // If the update belongs to the logged-in user, update the store
-            if (authUser && authUser._id === updatedUser._id) {
-                console.log("DEBUG: Profile update received via socket");
-                set({ authUser: updatedUser });
-            }
-        });
+        // Existing listeners...
+        socketInstance.on("getOnlineUsers", (userIds) => set({ onlineUsers: userIds }));
 
         socketInstance.on("connect", () => {
-            console.log("Socket connected successfully!");
-            set({ socket: socketInstance, isConnecting: false });
+            console.log("Socket connected and ready!");
+            // 2. Set both states here
+            set({ socket: socketInstance, isConnecting: false, isSocketReady: true });
+        });
+
+        // 3. Handle disconnection to reset the flag
+        socketInstance.on("disconnect", () => {
+            set({ isSocketReady: false });
         });
     },
 
-    // Implement disconnectSocket
     disconnectSocket: () => {
         const { socket } = get();
         if (socket?.connected) {
             socket.disconnect();
-            set({ socket: null, onlineUsers: [] });
+            set({ socket: null, onlineUsers: [], isSocketReady: false }); // Reset here too
         }
     },
 

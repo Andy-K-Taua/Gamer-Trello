@@ -116,9 +116,22 @@ io.on("connection", (socket) => {
   if (userId) {
     userSocketMap.set(userId, socket.id);
     console.log(`User connected: ${userId}`);
-
     io.emit("getOnlineUsers", Array.from(userSocketMap.keys()));
   }
+
+  // Unified relay function for all WebRTC signaling
+  socket.on("webrtc-signal", (data) => {
+    // data structure: { to: 'opponentId', type: 'offer'/'answer'/'ice', payload: {...} }
+    const targetSocketId = userSocketMap.get(data.to);
+    if (targetSocketId) {
+      console.log(`[SIGNAL] Relaying ${data.type} from ${userId} to ${data.to}`);
+      io.to(targetSocketId).emit("webrtc-signal", {
+        from: userId,
+        type: data.type,
+        payload: data.payload
+      });
+    }
+  });
 
   socket.on("disconnect", () => {
     userSocketMap.delete(userId);
@@ -127,14 +140,36 @@ io.on("connection", (socket) => {
 
   socket.on("request-game", (data) => {
     console.log("SERVER RECEIVED EVENT: request-game", data);
-      const targetSocketId = userSocketMap.get(data.to);
+    const targetSocketId = userSocketMap.get(data.to);
+    console.log(`DEBUG: Target ${data.to} found at ${targetSocketId}. Emitting now.`);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("game-request-received", { from: data.from });
+    } else {
       console.log(`DEBUG: Target ${data.to} found at ${targetSocketId}. Emitting now.`);
-      if (targetSocketId) {
-        io.to(targetSocketId).emit("game-request-received", { from: data.from });
-      } else {
-        console.log(`DEBUG: Target ${data.to} found at ${targetSocketId}. Emitting now.`);
-      }
-    });
+    }
+  });
+
+  socket.on("accept-game", (data) => {
+    console.log("SERVER: Game accepted by", data.from, "for player", data.to);
+
+    const senderSocketId = userSocketMap.get(data.to);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("game-start-notification", {
+        acceptedBy: data.from
+      });
+    }
+  });
+
+  socket.on("game-selected", (data) => {
+    const targetSocketId = userSocketMap.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("game-selected", {
+        gameName: data.gameName,
+        from: socket.handshake.query.userId // This is the Initiator's ID
+      });
+    }
+  });
+
 });
 
 const startServer = async () => {

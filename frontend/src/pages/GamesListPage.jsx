@@ -1,18 +1,37 @@
 // frontend/src/pages/GamesListPage.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // Fixed: Removed duplicate import
+import { useNavigate, useLocation } from "react-router-dom";
 import { axiosInstance } from '../lib/axios';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuthStore } from "../store/useAuthStore";
 
 const GamesListPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [games, setGames] = useState([]);
   const [isVerifying, setIsVerifying] = useState(true);
-  
+
   const redirectingRef = useRef(false);
+  const socket = useAuthStore((state) => state.socket);
+  const authUser = useAuthStore((state) => state.authUser);
+
+  // Extract opponentId and isInitiator from the state passed by the LeaderboardPage
+  const opponentId = location.state?.opponentId;
+  const isInitiator = location.state?.isInitiator;
+
+  const handleGameSelect = (gameName) => {
+    if (opponentId) {
+      // You are emitting 'gameName' and 'to'
+      socket.emit("game-selected", { to: opponentId, gameName });
+
+      navigate(`/game-pad/${gameName}/${opponentId}/initiator`);
+    } else {
+      navigate(`/game-pad/${gameName}`);
+    }
+  };
 
   useEffect(() => {
     const verifyAccessAndFetchGames = async () => {
@@ -21,21 +40,21 @@ const GamesListPage = () => {
       try {
         console.log('Verifying subscription access...');
         await axiosInstance.get('/subscriptions/status/verify');
-        
+
         console.log('Access granted. Fetching games...');
         const response = await axiosInstance.get('/games');
-        
+
         const gamesList = response.data
           .filter((game) => game.name !== '.DS_Store' && game.id !== '.DS_Store')
           .map((game) => ({
             id: game.id,
             name: game.name,
-            image: `/images/${game.name}.png`         
+            image: `/images/${game.name}.png`
           }));
-        
+
         setGames(gamesList);
         setIsVerifying(false);
-        
+
       } catch (error) {
         console.error("Authorization check failed:", error);
         const status = error.response?.status;
@@ -53,9 +72,32 @@ const GamesListPage = () => {
     verifyAccessAndFetchGames();
   }, [navigate]);
 
-  const handleGameClick = (gameName) => {
-    navigate(`/game-pad/${gameName}`);
-  };
+  // useEffect(() => {
+  //   if (!socket) return;
+
+  //   socket.on("game-selected", (data) => {
+  //     // The receiver now automatically joins the game the initiator picked
+  //     navigate(`/game-pad/${data.gameName}/${opponentId}`, { state: { isInitiator: false } });
+  //   });
+
+  //   return () => socket.off("game-selected");
+  // }, [socket, navigate, opponentId]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("game-selected", (data) => {
+      // data should contain { gameName, from }
+      // 'from' is the Initiator's ID
+      navigate(`/game-pad/${data.gameName}/${data.from}/receiver`);
+    });
+
+    return () => socket.off("game-selected");
+  }, [socket, navigate, authUser]);
+
+  // const handleGameClick = (gameName) => {
+  //   navigate(`/game-pad/${gameName}`);
+  // };
 
   const filteredGames = games.filter((game) =>
     game.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,7 +106,7 @@ const GamesListPage = () => {
   if (isVerifying) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-base-200">
-        <Loader2 className="size-10 animate-spin text-success mb-2"/>
+        <Loader2 className="size-10 animate-spin text-success mb-2" />
         <span className="text-lg font-semibold text-base-content/70">Verifying access credentials...</span>
       </div>
     );
@@ -81,8 +123,8 @@ const GamesListPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="input input-bordered w-full rounded-[20px]"
         />
-        <button 
-          onClick={() => navigate("/leaderboard")} 
+        <button
+          onClick={() => navigate("/leaderboard")}
           className="btn btn-primary rounded-[20px] whitespace-nowrap"
         >
           View Leaderboard
@@ -92,8 +134,8 @@ const GamesListPage = () => {
       {filteredGames.length === 0 ? (
         <div className="text-center py-12 bg-base-100 rounded-xl border border-base-300 max-w-2xl mx-auto shadow-sm">
           <p className="text-lg font-medium text-base-content/60">No games match your search criteria.</p>
-          <button 
-            onClick={() => setSearchQuery('')} 
+          <button
+            onClick={() => setSearchQuery('')}
             className="btn btn-success btn-sm mt-4 text-white rounded-full px-6"
           >
             Clear Search
@@ -105,16 +147,17 @@ const GamesListPage = () => {
             <div
               key={game.id}
               className="card bg-white shadow-xl cursor-pointer rounded-lg hover:scale-[1.02] transition-transform duration-200"
-              onClick={() => handleGameClick(game.name)}
+              // CALL handleGameSelect instead of handleGameClick
+              onClick={() => handleGameSelect(game.name)}
             >
               <figure>
-                <img 
-                  src={game.image} 
-                  alt={game.name} 
-                  className="object-cover h-48 w-full" 
+                <img
+                  src={game.image}
+                  alt={game.name}
+                  className="object-cover h-48 w-full"
                   onError={(e) => {
-                    e.target.onerror = null; 
-                    e.target.src = '/images/fallback-placeholder.png'; 
+                    e.target.onerror = null;
+                    e.target.src = '/images/fallback-placeholder.png';
                   }}
                 />
               </figure>

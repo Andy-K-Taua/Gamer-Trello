@@ -30,18 +30,26 @@ const LeaderboardPage = () => {
   useEffect(() => {
     if (!socket) return;
 
+    const handleAny = (event, ...args) => {
+      console.log("DEBUG: Received socket event:", event, args);
+    };
+
+    socket.onAny(handleAny);
+
     socket.on("game-request-received", (data) => {
       const senderName = usersCache[data.from]?.fullName || "A player";
 
       toast((t) => (
-        <div className="flex items-center gap-2">
-          <span> Game invite from {senderName}</span>
+        <div className="flex flex-col gap-2">
+          <p> Dual play with '{senderName}'</p>
           <button
             className="btn btn-sm btn-primary"
             onClick={() => {
-              console.log("Accepted!");
+              // 1. Tell the server we accepted
+              socket.emit("accept-game", { from: authUser._id, to: data.from });
               toast.dismiss(t.id);
-              // Redirect or trigger game logic here
+              toast.success("Game accepted! Waiting for connection...");
+              navigate(`/games-list`, { state: { opponentId: data.from, isInitiator: false } });
             }}
           >
             Accept
@@ -50,8 +58,26 @@ const LeaderboardPage = () => {
       ), { duration: Infinity });
     });
 
-    return () => socket.off("game-request-received");
-  }, [socket, usersCache]);
+    return () => {
+      socket.offAny(handleAny);
+      socket.off("game-request-received");
+    };
+  }, [socket, usersCache, authUser?._id, navigate]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleGameStart = (data) => {
+      console.log("Game accepted by:", data.acceptedBy);
+      toast.success("Challenge accepted! Starting game...");
+      // Ensure 'gameName' is defined. If you don't have it, pass a default.
+      navigate(`/games-list`, { state: { opponentId: data.acceptedBy, isInitiator: true } });
+    };
+
+    socket.on("game-start-notification", handleGameStart);
+
+    return () => socket.off("game-start-notification", handleGameStart);
+  }, [socket, navigate]);
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(authUser?.fullName || "");

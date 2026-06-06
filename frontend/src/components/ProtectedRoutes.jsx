@@ -18,9 +18,7 @@ const ProtectedRoutes = () => {
                 <Route path="/subscription" element={<SubscriptionPage />} />
                 <Route path="/leaderboard" element={<LeaderboardPage />} />
                 <Route path="/games-list" element={<GamesListPage />} />
-                <Route path="game-pad/:gameName" element={<GamePadPage />} />
-                <Route path="*" element={<div>Route not found in ProtectedRoutes</div>} />
-            </Routes>
+                <Route path="/game-pad/:gameName/:opponentId/:role" element={<GamePadPage />} />            </Routes>
         </AuthCheck>
     );
 };
