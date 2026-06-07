@@ -27,16 +27,18 @@ const RetroArchEmulator = forwardRef((props, ref) => {
   }));
 
   useEffect(() => {
-    // 1. Set global EJS configs
     window.EJS_player = '#game';
     window.EJS_core = 'segaMD';
     window.EJS_gameUrl = `${window.location.origin}/games/${game.endsWith('.md') ? game : `${game}.md`}`;
     
-    // FIX: Set a more robust path for data
-    window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
-    
-    // FIX: Explicitly handle the language file path to avoid 404s
+    // Ensure these paths are fully qualified absolute URLs
+    const BASE_URL = 'https://cdn.emulatorjs.org/stable/data/';
+    window.EJS_pathtodata = BASE_URL;
     window.EJS_language = 'en';
+    // Point directly to the location of the language files
+    window.EJS_paths = {
+        locales: `${BASE_URL}localization/`
+    };
     
     window.EJS_disableAudio = true;
     

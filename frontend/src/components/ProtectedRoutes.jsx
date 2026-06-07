@@ -17,8 +17,7 @@ const ProtectedRoutes = () => {
                 <Route path="games-list" element={<GamesListPage />} />
 
                 {/* Updated Route: Parameters are now optional */}
-                <Route path="game-pad/:gameName" element={<GamePadPage />} />
-                {/* <Route path="game-pad/:gameName/:opponentId/:role" element={<GamePadPage />} /> */}
+                <Route path="game-pad/:gameName/:opponentId?/:role?" element={<GamePadPage />} />                {/* <Route path="game-pad/:gameName/:opponentId/:role" element={<GamePadPage />} /> */}
             </Routes>
         </AuthCheck>
     );
