@@ -12,7 +12,10 @@ export const useWebRTC = (remoteUserId) => {
     const authUser = useAuthStore((state) => state.authUser);
     const isSocketReady = useAuthStore((state) => state.isSocketReady);
 
+    console.log("DEBUG: useWebRTC state check:", { socket, isSocketReady, remoteUserId });
+
     const peerConnection = useRef(null);
+    const makingOffer = useRef(false); // FLAG TO PREVENT LOOP
     const [isReady, setIsReady] = useState(false);
     const [remoteStream, setRemoteStream] = useState(null);
 
@@ -22,29 +25,32 @@ export const useWebRTC = (remoteUserId) => {
         const pc = new RTCPeerConnection(configuration);
         peerConnection.current = pc;
 
+        // NEW: Debug connection state
+        pc.oniceconnectionstatechange = () => console.log("ICE State:", pc.iceConnectionState);
+
         pc.onnegotiationneeded = async () => {
+            if (makingOffer.current) return;
             try {
-                console.log("🔄 Renegotiation needed...");
+                makingOffer.current = true;
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
                 socket.emit("webrtc-signal", { to: remoteUserId, type: "offer", payload: { offer } });
             } catch (err) {
-                console.error("Renegotiation failed:", err);
+                console.error("Negotiation failed:", err);
+            } finally {
+                makingOffer.current = false;
             }
         };
 
-        // Handle incoming tracks (The Receiver's perspective)
         pc.ontrack = (event) => {
-            console.log("🔥 ONTRACK EVENT FIRED!");
-            console.log("Streams:", event.streams);
-            console.log("Track:", event.track);
+            console.log("✅ Track received, kind:", event.track.kind);
             if (event.streams && event.streams[0]) {
                 setRemoteStream(event.streams[0]);
             } else {
-                // Fallback: If browser doesn't support streams in ontrack
-                const stream = new MediaStream();
-                stream.addTrack(event.track);
-                setRemoteStream(stream);
+                // Fallback: create a new stream if the browser doesn't provide one
+                let inboundStream = new MediaStream();
+                inboundStream.addTrack(event.track);
+                setRemoteStream(inboundStream);
             }
         };
 
@@ -54,59 +60,62 @@ export const useWebRTC = (remoteUserId) => {
             }
         };
 
-        // Listen for all signals via the unified channel
         const handleSignal = async ({ from, type, payload }) => {
             const pc = peerConnection.current;
-
-            console.log("DEBUG: Signaling state before process:", pc?.signalingState, "Type:", type);
-
-
             if (!pc) return;
-
-            console.log(`📥 Received ${type} from ${from}`);
 
             try {
                 if (type === "offer") {
-                    // 1. Set Remote first
+                    // Prevent glare: If we are already negotiating, ignore incoming offer
+                    const offerCollision = (makingOffer.current || pc.signalingState !== "stable");
+                    if (offerCollision) return;
+
                     await pc.setRemoteDescription(new RTCSessionDescription(payload.offer));
-                    // 2. Then Create Answer
                     const answer = await pc.createAnswer();
-                    // 3. Then Set Local
                     await pc.setLocalDescription(answer);
-                    // 4. Then Emit
                     socket.emit("webrtc-signal", { to: from, type: "answer", payload: { answer } });
-                } else if (type === "answer") {
+                }
+                else if (type === "answer") {
                     await pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
-                } else if (type === "ice") {
-                    // Only add ICE if we have a remote description
+                }
+                else if (type === "ice") {
                     if (pc.remoteDescription) {
                         await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
                     }
                 }
             } catch (err) {
-                console.error("WebRTC Error during:", type, err);
+                console.error("WebRTC Error:", err);
             }
         };
 
         socket.on("webrtc-signal", handleSignal);
-
-        setIsReady(true); // This will now run
+        setIsReady(true);
 
         return () => {
             socket.off("webrtc-signal", handleSignal);
             pc.close();
         };
-
     }, [socket, isSocketReady, remoteUserId, authUser?._id]);
 
     const createOffer = async () => {
-        const offer = await peerConnection.current.createOffer();
-        await peerConnection.current.setLocalDescription(offer);
-        socket.emit("webrtc-signal", { to: remoteUserId, type: "offer", payload: { offer } });
+        // This is handled by onnegotiationneeded automatically now
     };
 
     const addStream = (stream) => {
-        stream.getTracks().forEach((track) => peerConnection.current.addTrack(track, stream));
+        if (!peerConnection.current) return;
+
+        stream.getTracks().forEach((track) => {
+            // Remove existing tracks of the same kind to prevent duplicates
+            const senders = peerConnection.current.getSenders();
+            const existingSender = senders.find(s => s.track?.kind === track.kind);
+
+            if (existingSender) {
+                peerConnection.current.removeTrack(existingSender);
+            }
+
+            peerConnection.current.addTrack(track, stream);
+        });
+        console.log("✅ Tracks added to PeerConnection");
     };
 
     return { createOffer, peerConnection, isReady, addStream, remoteStream };

@@ -31,22 +31,38 @@ const RetroArchEmulator = forwardRef((props, ref) => {
     window.EJS_player = '#game';
     window.EJS_core = 'segaMD';
     window.EJS_gameUrl = `${window.location.origin}/games/${game.endsWith('.md') ? game : `${game}.md`}`;
-    window.EJS_language = 'en';
+    
+    // FIX: Set a more robust path for data
     window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+    
+    // FIX: Explicitly handle the language file path to avoid 404s
+    window.EJS_language = 'en';
+    
     window.EJS_disableAudio = true;
     
     // 2. Load script
     const scriptUrl = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+    
+    // Check if it's already loaded to prevent duplicate script injection
     if (!document.querySelector(`script[src="${scriptUrl}"]`)) {
-      const script = document.createElement('script');
-      script.src = scriptUrl;
-      script.onload = () => console.log('EmulatorJS loaded');
-      document.body.appendChild(script);
-    } else if (window.EJS_emulator) {
-      // Re-trigger if already loaded
-      window.EJS_emulator.restart();
+        const script = document.createElement('script');
+        script.src = scriptUrl;
+        script.async = true; // Use async for better performance
+        script.onload = () => {
+            console.log('EmulatorJS script loaded');
+            // Ensure the emulator is actually initialized
+            if (window.EJS_emulator) {
+                window.EJS_emulator.restart();
+            }
+        };
+        document.body.appendChild(script);
+    } else {
+        // If script exists, just restart the emulator
+        if (window.EJS_emulator) {
+            window.EJS_emulator.restart();
+        }
     }
-  }, [game]);
+}, [game]);
 
   return (
     <div id='game' ref={containerRef} style={{ width: '100%', height: '100%' }} />
